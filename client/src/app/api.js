@@ -1,5 +1,5 @@
 import axios from "axios";
-import store from "../app/store";
+import {store} from "../app/store";
 import { setUser } from "../feature/authSlice";
 import { logout } from "../feature/authSlice";
 const api = "http://localhost:5500/api/v1";
@@ -13,6 +13,7 @@ axiosInstance.interceptors.request.use(
   (config) => {
     const state = store.getState();
     const token = state.auth.user
+    console.log(token)
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -65,4 +66,8 @@ export const endpoints = {
   confirm: `${api}/auth/confirm-otp`,
   request_reset: `${api}/auth/request/reset`,
   reset_password: `${api}/auth/reset`,
+
+  //chat
+  users: `/chat/users`,
+  messages: `/chat/get-messages`,
 };

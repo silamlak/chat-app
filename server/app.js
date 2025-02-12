@@ -6,6 +6,7 @@ import errorMiddleware from './middleware/error.middleware.js';
 import connectDB from './database/db.connection.js';
 import cookieParser from 'cookie-parser';
 import arcjetMiddleware from './middleware/arcjet.middleware.js';
+import chatRouter from './route/chat.route.js';
 
 const app = express();
 app.use(
@@ -24,6 +25,7 @@ app.use(arcjetMiddleware);
 
 // todo: auth routes
 app.use('/api/v1/auth', authRouter)
+app.use('/api/v1/chat', chatRouter)
 
 // todo: error handling
 app.use(errorMiddleware)

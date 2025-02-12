@@ -1,4 +1,40 @@
+import { useQuery } from '@tanstack/react-query'
+import { getMessages, getUsers } from '../feature/chat/chatApi';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addUser } from '../feature/chat/chatSlice';
+
 const Home = () => {
+const dispatch = useDispatch();
+const users = useSelector((state) => state.chat.users);
+const user = useSelector((state) => state.chaauth.user);
+const [userId, setUserId] = useState(null);
+  const {data} = useQuery({
+    queryKey: ['users'],
+    queryFn: getUsers
+  })
+
+  useEffect(() => {
+    if(data) {
+      dispatch(addUser(data));
+    }
+  }, [data, dispatch])
+
+      const { data: messageData } = useQuery({
+        queryKey: ["messages", userId],
+        queryFn: getMessages(userId),
+        enabled: !!userId,
+      });
+
+      useEffect(() => {
+        if (messageData) {
+          console.log(messageData)
+        }
+      }, [messageData]);
+
+  const handleUserClick = (userId) => {
+    setUserId(userId)
+  }
 
   return (
     <div className="flex h-screen">
@@ -9,8 +45,24 @@ const Home = () => {
           <h2 className="text-xl font-semibold mb-2">Contacts</h2>
           <ul>
             {/* Map through your contacts here */}
-            <li className="p-2 hover:bg-gray-200 cursor-pointer">User 1</li>
-            <li className="p-2 hover:bg-gray-200 cursor-pointer">User 2</li>
+            {users?.map((user) => (
+              <li
+                key={user._id}
+                onClick={() => handleUserClick(user._id)}
+                className="flex items-center p-2 rounded-lg bg-gray-300 mb-2 hover:bg-gray-200 cursor-pointer transition duration-300"
+              >
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="w-10 h-10 rounded-full mr-3"
+                />
+                <div>
+                  <h3 className="font-semibold text-gray-800">{user.name}</h3>
+                  <p className="text-sm text-gray-500">Online</p>
+                </div>
+              </li>
+            ))}
+
             {/* Add more users as needed */}
           </ul>
         </div>
