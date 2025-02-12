@@ -26,9 +26,12 @@ export const signIn = async (req, res, next) => {
     if(!isMatch) {
       throw new Error('Invalid credentials')
     }
-    const token = jwt.sign({id: user._id}, JWT_SECRET, {expiresIn: '1h'})
-    res.cookie('token', token, {httpOnly: true})
-    res.status(200).json({message: 'User signed in successfully'})
+    const accessToken = jwt.sign({id: user._id}, JWT_SECRET, {expiresIn: '10m'})
+    const refreshToken = jwt.sign({id: user._id}, JWT_SECRET, {expiresIn: '1h'})
+    res.cookie("token", refreshToken, { httpOnly: true });
+    res
+      .status(200)
+      .json({ message: "User signed in successfully", accessToken });
   } catch (error) {
     next(error);
   }
@@ -42,3 +45,22 @@ export const signOut = (req, res, next) => {
     next(error);
   }
 };
+
+export const refeshToken = async (req, res, next) => {
+  try {
+    const token = req.cookies.token
+    if(!token) {
+      throw new Error('Token not found')
+    }
+    const decoded = jwt.verify(token, JWT_SECRET)
+    const user = await User.findById(decoded.id)
+    if(!user) {
+      throw new Error('User not found')
+    }
+    const newToken = jwt.sign({id: user._id}, JWT_SECRET, {expiresIn: '10m'})
+    res.cookie('token', newToken, {httpOnly: true})
+    res.status(200).json({message: 'Token refreshed successfully', newToken})
+  } catch (error) {
+    next(error);
+  }
+}
