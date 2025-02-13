@@ -26,10 +26,20 @@ const chatSlice = createSlice({
     addConversation(state, action) {
       state.conversationId = action.payload;
     },
+
+    clearMessage(state) {
+      state.messages = [];
+    }
   },
 });
 
-export const { selectUser, addUser, addMessages, addConversation, pushMessages } =
-  chatSlice.actions;
+export const {
+  selectUser,
+  addUser,
+  addMessages,
+  addConversation,
+  pushMessages,
+  clearMessage,
+} = chatSlice.actions;
 
 export default chatSlice.reducer;

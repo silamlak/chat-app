@@ -23,14 +23,12 @@ export const getMessages = async (userId) => {
     }
 }
 
-export const sendMessage = async (conversationId, text) => {
-  const body = {
-    text,
-  }
+export const sendMessage = async (conversationId, data) => {
+console.log(data)
   try {
     const res = await axiosInstance.post(
       `${endpoints.send_messages}/${conversationId}`,
-      body, 
+      data, 
       {
         withCredentials: true,
       }

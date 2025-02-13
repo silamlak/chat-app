@@ -1,17 +1,40 @@
-import { useMutation } from "@tanstack/react-query";
-import { sendMessage } from "../feature/chat/chatApi";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getMessages, sendMessage } from "../feature/chat/chatApi";
 import { useDispatch, useSelector } from "react-redux";
-import { pushMessages } from "../feature/chat/chatSlice";
-import { useState } from "react";
+import {
+  addConversation,
+  addMessages,
+  clearMessage,
+  pushMessages,
+} from "../feature/chat/chatSlice";
+import { useEffect, useState } from "react";
+import socket from "../utils/socketConection";
 
 const ChatMessageBox = () => {
   const dispatch = useDispatch();
   const messages = useSelector((state) => state.chat.messages);
-  const all = useSelector((state) => state.chat);
+  const userId = useSelector((state) => state.chat.selectedUser);
   const conversationId = useSelector((state) => state.chat.conversationId);
   const myId = useSelector((state) => state.auth.userId);
   const [text, setText] = useState("");
-console.log(all)
+
+  useEffect(() => {
+    dispatch(clearMessage());
+  }, [userId, dispatch]);
+
+  const { data: messageData, isLoading } = useQuery({
+    queryKey: ["messages", userId],
+    queryFn: () => getMessages(userId),
+    enabled: !!userId,
+  });
+
+  useEffect(() => {
+    if (messageData) {
+      dispatch(addMessages(messageData?.messages));
+      dispatch(addConversation(messageData?.conversationId));
+    }
+  }, [messageData, dispatch]);
+
   const mutation = useMutation({
     mutationFn: (text) => sendMessage(conversationId, text),
     onSuccess: (data) => {
@@ -19,7 +42,9 @@ console.log(all)
       const body = {
         text,
         sender: myId,
+        reciever: userId,
       };
+      // socket.emit("sendMessage", body);
       dispatch(pushMessages(body));
       setText("");
     },
@@ -27,8 +52,22 @@ console.log(all)
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    mutation.mutate(text);
+    const body = {
+      text,
+      reciever: userId,
+    };
+    mutation.mutate(body);
   };
+
+  useEffect(() => {
+    socket.on("recieveMessage", (data) => {
+      console.log(data)
+      dispatch(pushMessages(data));
+    });
+    return () => {
+      socket.off("recieveMessage");
+    }
+  }, [dispatch])
 
   return (
     <div>
@@ -37,9 +76,11 @@ console.log(all)
           <h2 className="text-xl font-semibold">Chat with User 1</h2>
         </div>
 
+        {isLoading && <div className="text-center text-gray-500">Loading</div>}
+
         <div className="p-4 overflow-y-auto">
           {!messages && (
-            <div className="text-center text-gray-500">
+            <div key={messages?._id} className="text-center text-gray-500">
               Select a user to chat
             </div>
           )}

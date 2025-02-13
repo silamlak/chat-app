@@ -5,10 +5,10 @@ import authRouter from './route/auth.route.js';
 import errorMiddleware from './middleware/error.middleware.js';
 import connectDB from './database/db.connection.js';
 import cookieParser from 'cookie-parser';
-import arcjetMiddleware from './middleware/arcjet.middleware.js';
+// import arcjetMiddleware from './middleware/arcjet.middleware.js';
 import chatRouter from './route/chat.route.js';
+import { app, server } from './socket.js';
 
-const app = express();
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // todo: arcjet middleware
-app.use(arcjetMiddleware);
+// app.use(arcjetMiddleware);
 
 // todo: auth routes
 app.use('/api/v1/auth', authRouter)
@@ -39,7 +39,7 @@ app.use(errorMiddleware)
 // todo: online-status
 
 
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
     console.log(`Server is running on port ${(PORT)}`);
     await connectDB();
 })
