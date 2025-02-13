@@ -13,7 +13,7 @@ axiosInstance.interceptors.request.use(
   (config) => {
     const state = store.getState();
     const token = state.auth.user
-    console.log(token)
+    // console.log(token)
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -70,4 +70,5 @@ export const endpoints = {
   //chat
   users: `/chat/users`,
   messages: `/chat/get-messages`,
+  send_messages: `/chat/create-messages`,
 };

@@ -1,13 +1,15 @@
-import { useQuery } from '@tanstack/react-query'
-import { getMessages, getUsers } from '../feature/chat/chatApi';
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { getMessages, getUsers, sendMessage } from '../feature/chat/chatApi';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addUser } from '../feature/chat/chatSlice';
+import { addConversation, addMessages, addUser } from '../feature/chat/chatSlice';
 
 const Home = () => {
 const dispatch = useDispatch();
 const users = useSelector((state) => state.chat.users);
-const user = useSelector((state) => state.chaauth.user);
+const messages = useSelector((state) => state.chat.messages);
+const conversationId = useSelector((state) => state.chat.conversationId);
+const myId = useSelector((state) => state.auth.userId);
 const [userId, setUserId] = useState(null);
   const {data} = useQuery({
     queryKey: ['users'],
@@ -22,19 +24,36 @@ const [userId, setUserId] = useState(null);
 
       const { data: messageData } = useQuery({
         queryKey: ["messages", userId],
-        queryFn: getMessages(userId),
+        queryFn: () => getMessages(userId),
         enabled: !!userId,
       });
 
       useEffect(() => {
         if (messageData) {
+          dispatch(addMessages(messageData?.newConversation));
+          dispatch(addConversation(messageData?.conversationId));
           console.log(messageData)
         }
-      }, [messageData]);
+      }, [messageData, dispatch]);
 
   const handleUserClick = (userId) => {
     setUserId(userId)
   }
+
+  const mutation = useMutation({
+    mutationFn: (text) => sendMessage(conversationId, text),
+    onSuccess: (data) => {
+      console.log(data);
+    },
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const text = e.target[0].value;
+    console.log(text)
+    mutation.mutate(text);
+  }
+
 
   return (
     <div className="flex h-screen">
@@ -70,32 +89,26 @@ const [userId, setUserId] = useState(null);
 
       {/* Chat Area */}
       <div className="flex-1 flex flex-col">
-        {/* Chat Header */}
         <div className="border-b p-4">
           <h2 className="text-xl font-semibold">Chat with User 1</h2>
         </div>
 
-        {/* Messages */}
         <div className="flex-1 p-4 overflow-y-auto">
-          {/* Map through your messages here */}
-          <div className="mb-4">
-            <div className="bg-blue-100 p-2 rounded-lg inline-block">
-              Hello! How are you?
+          {!messages && (
+            <div className="text-center text-gray-500">Select a user to chat</div>
+          )}
+          {messages?.map((message) => (
+            <div key={message?._id} className={`mb-4 ${message?.sender === myId ? 'text-right': ''}`}>
+              <div className="bg-blue-100 p-2 rounded-lg inline-block">
+                {message?.text}
+              </div>
+              <div className="text-sm text-gray-500 mt-1">10:00 AM</div>
             </div>
-            <div className="text-sm text-gray-500 mt-1">10:00 AM</div>
-          </div>
-          <div className="mb-4 text-right">
-            <div className="bg-green-100 p-2 rounded-lg inline-block">
-              I'm good, thanks! How about you?
-            </div>
-            <div className="text-sm text-gray-500 mt-1">10:02 AM</div>
-          </div>
-          {/* Add more messages as needed */}
+          ))}
         </div>
 
-        {/* Message Input */}
         <div className="border-t p-4">
-          <form className="flex">
+          <form onSubmit={(e) => handleSubmit(e)} className="flex">
             <input
               type="text"
               className="flex-1 border rounded-l-lg p-2"

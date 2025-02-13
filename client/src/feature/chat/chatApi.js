@@ -23,3 +23,21 @@ export const getMessages = async (userId) => {
     }
 }
 
+export const sendMessage = async (conversationId, text) => {
+  const body = {
+    text,
+  }
+  try {
+    const res = await axiosInstance.post(
+      `${endpoints.send_messages}/${conversationId}`,
+      body, 
+      {
+        withCredentials: true,
+      }
+    );
+    return res.data;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+

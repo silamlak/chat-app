@@ -26,10 +26,13 @@ export const getMessages = async (req, res, next) => {
     const conversation = await conversationModel.findOne({
       participants: { $all: [req.user._id, reciever_id] },
     });
+    if (!conversation) {
+      return
+    }
     const newConversation = await messageModel.find({
       conversationId: conversation._id,
     });
-    res.status(200).json(newConversation);
+    res.status(200).json({newConversation, conversationId: conversation._id});
   } catch (error) {
     next(error);
   }
@@ -37,7 +40,13 @@ export const getMessages = async (req, res, next) => {
 
 export const createMessages = async (req, res, next) => {
   try {
-    const { conversation_id } = req.params;
+    let { conversation_id } = req.params;
+    if (!conversation_id) {
+      const newConversation = await conversationModel.create({
+        participants: [req.user._id, req.body.reciever],
+      });
+      conversation_id = newConversation._id;
+    }
     const message = await messageModel.create({
       ...req.body,
       conversationId: conversation_id,

@@ -1,18 +1,20 @@
-import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
+import ChatLayout from "./components/ChatLayout";
+import ChatMessageBox from "./components/ChatMessageBox";
 
 const App = () => {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Home />,
-    },
-    {
-      path: "/about",
-      element: <h1>about</h1>,
+      element: <ChatLayout />,
+      children: [
+        {
+          path: "/:id",
+          element: <ChatMessageBox />,
+        },
+      ],
     },
     {
       path: "/sign-up",

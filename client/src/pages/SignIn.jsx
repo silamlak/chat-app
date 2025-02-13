@@ -4,7 +4,7 @@ import { signInValidation } from "../utils/hook.validation";
 import { useMutation } from "@tanstack/react-query";
 import { signIn, signOut } from "../feature/authApi";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../feature/authSlice";
+import { setUser, setUserId } from "../feature/authSlice";
 
 const SignIn = () => {
   const dispatch = useDispatch();
@@ -26,6 +26,8 @@ const SignIn = () => {
     onSuccess: (data) => {
       console.log(data?.accessToken);
       dispatch(setUser(data?.accessToken));
+      dispatch(setUserId(data?.user?._id));
+      console.log(data)
     },
   });
   
