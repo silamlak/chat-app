@@ -44,7 +44,7 @@ const ChatMessageBox = () => {
         sender: myId,
         reciever: userId,
       };
-      // socket.emit("sendMessage", body);
+      socket.emit("sendMessage", body);
       dispatch(pushMessages(body));
       setText("");
     },
@@ -61,13 +61,12 @@ const ChatMessageBox = () => {
 
   useEffect(() => {
     socket.on("recieveMessage", (data) => {
-      console.log(data)
       dispatch(pushMessages(data));
     });
     return () => {
       socket.off("recieveMessage");
-    }
-  }, [dispatch])
+    };
+  }, [dispatch]);
 
   return (
     <div>
@@ -80,7 +79,7 @@ const ChatMessageBox = () => {
 
         <div className="p-4 overflow-y-auto">
           {!messages && (
-            <div key={messages?._id} className="text-center text-gray-500">
+            <div className="text-center text-gray-500">
               Select a user to chat
             </div>
           )}
