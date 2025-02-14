@@ -68,7 +68,8 @@ export const endpoints = {
   reset_password: `${api}/auth/reset`,
 
   //chat
-  users: `/chat/users`,
+  conversations: `/chat/conversations`,
+  new_users: `/chat/new-users`,
   messages: `/chat/get-messages`,
   send_messages: `/chat/create-messages`,
 };

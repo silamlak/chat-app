@@ -2,8 +2,8 @@ import { IoPersonSharp } from "react-icons/io5";
 
 const Avatar = ({ name, imageUrl, size = 20, online = true }) => {
   const getInitials = (name) => {
-    const nameParts = name.split(" ");
-    const initials = nameParts.map((part) => part[0].toUpperCase()).join("");
+    const nameParts = name?.split(" ");
+    const initials = nameParts?.map((part) => part[0].toUpperCase()).join("");
     return initials;
   };
 

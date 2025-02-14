@@ -36,6 +36,12 @@ io.on("connection", (socket) => {
     }
   })
 
+  socket.on("sendNewConversation", async (data) => {
+    const { message, friendId } = data;
+    console.log(message, friendId);
+    socket.to(friendId).emit("recieveNewConversation", message);
+  });
+
   socket.on("disconnected", () => {
     console.log("user Disconnected", socket.id);
   });
