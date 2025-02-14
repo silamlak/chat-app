@@ -9,6 +9,7 @@ import {
 } from "../feature/chat/chatSlice";
 import { useEffect, useState } from "react";
 import socket from "../utils/socketConection";
+import ChatHeader from "./ChatHeader";
 
 const ChatMessageBox = () => {
   const dispatch = useDispatch();
@@ -70,14 +71,12 @@ const ChatMessageBox = () => {
 
   return (
     <div>
-      <div className="">
-        <div className="border-b p-4">
-          <h2 className="text-xl font-semibold">Chat with User 1</h2>
-        </div>
+      <div className="h-screen flex flex-col">
+        <ChatHeader userName="User 1" lastSeen="2 hours ago" />
 
         {isLoading && <div className="text-center text-gray-500">Loading</div>}
 
-        <div className="p-4 overflow-y-auto">
+        <div className="p-4 overflow-y-auto bg-slate-200 dark:bg-slate-800">
           {!messages && (
             <div className="text-center text-gray-500">
               Select a user to chat
@@ -88,7 +87,7 @@ const ChatMessageBox = () => {
               key={message?._id}
               className={`mb-4 ${message?.sender === myId ? "text-right" : ""}`}
             >
-              <div className="bg-blue-100 p-2 rounded-lg inline-block">
+              <div className="bg-lime-50 dark:bg-blue-400 text-sm p-2 rounded-2xl inline-block">
                 {message?.text}
               </div>
               <div className="text-sm text-gray-500 mt-1">10:00 AM</div>
@@ -96,15 +95,16 @@ const ChatMessageBox = () => {
           ))}
         </div>
 
-        <div className="border-t p-4">
+        <div className="sticky bottom-0 p-1 bg-slate-100 dark:bg-slate-900">
           <form onSubmit={(e) => handleSubmit(e)} className="flex">
             <input
               name="text"
               onChange={(e) => setText(e.target.value)}
               value={text}
               type="text"
-              className="flex-1 border rounded-l-lg p-2"
+              className="flex-1 rounded-l-lg p-2 focus:outline-none dark:text-white"
               placeholder="Type your message..."
+              autoComplete="off"
             />
             <button
               type="submit"

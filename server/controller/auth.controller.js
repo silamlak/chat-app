@@ -26,7 +26,7 @@ export const signIn = async (req, res, next) => {
     if(!isMatch) {
       throw new Error('Invalid credentials')
     }
-    const accessToken = jwt.sign({id: user._id}, JWT_SECRET, {expiresIn: '30m'})
+    const accessToken = jwt.sign({id: user._id}, JWT_SECRET, {expiresIn: '2h'})
     const refreshToken = jwt.sign({id: user._id}, JWT_SECRET, {expiresIn: '1h'})
     res.cookie("token", refreshToken, { httpOnly: true });
     res

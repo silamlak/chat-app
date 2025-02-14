@@ -2,15 +2,14 @@ import ChatUsers from "./ChatUsers";
 import { Outlet } from "react-router-dom";
 
 const ChatLayout = () => {
-
   return (
-    <div className="flex flex-row h-screen w-full ">
-      <div className="w-1/4 p-4">
+    <div className="flex h-screen">
+      <aside className="w-1/4 h-screen bg-gray-50 dark:bg-slate-900 sticky top-0 overflow-y-auto">
         <ChatUsers />
-      </div>
-      <div className="w-3/4 p-4">
+      </aside>
+      <main className="flex-1 overflow-y-auto">
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 };
