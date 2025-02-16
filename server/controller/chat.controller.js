@@ -24,20 +24,27 @@ export const getConversations = async (req, res, next) => {
       _id: { $in: friendIds },
     });
 
-    const conversationWithFriends = conversations.map((conversation) => {
-      const friendId = conversation.participants.find(
-        (participant) => participant.toString() !== id
-      );
+    const conversationWithFriends = await Promise.all(
+      conversations.map(async (conversation) => {
+        const message = await messageModel
+          .findOne({ conversationId: conversation?._id })
+          .sort({ createdAt: -1 })
+          .limit(1);
+        const friendId = conversation.participants.find(
+          (participant) => participant.toString() !== id
+        );
 
-      const friend = friends.find(
-        (friend) => friend._id.toString() === friendId.toString()
-      );
+        const friend = friends.find(
+          (friend) => friend._id.toString() === friendId.toString()
+        );
 
-      return {
-        ...conversation._doc,
-        friend: friend || null,
-      };
-    });
+        return {
+          message: message._doc,
+          ...conversation._doc,
+          friend: friend || null,
+        };
+      })
+    );
 
     res.status(200).json(conversationWithFriends);
   } catch (error) {
@@ -94,7 +101,7 @@ export const createMessages = async (req, res, next) => {
       sender: id,
     });
 
-    const friend = await userModel.findById(req.body.reciever)
+    const friend = await userModel.findById(req.body.reciever);
 
     const conversationWithUser = {
       ...newConversation?._doc,
@@ -105,7 +112,7 @@ export const createMessages = async (req, res, next) => {
       res.status(200).json({ message, conversationWithUser });
       return;
     }
-    res.status(200).json({message});
+    res.status(200).json({ message });
   } catch (error) {
     next(error);
   }
@@ -133,3 +140,18 @@ export const getNewUsers = async (req, res, next) => {
     next(error);
   }
 };
+
+
+export const updateMessageRead = async (req, res, next) => {
+  const { message_id, conversation_id } = req.params;
+  try {
+    if (!message_id) {
+      return
+    }
+    const updatedMessage = await messageModel.findByIdAndUpdate(message_id, {$set: {isRead: true}})
+    await messageModel.updateMany({conversationId: conversation_id, isRead: false}, {$set: {isRead: true}})
+    res.status(200).json(updatedMessage);
+  } catch (error) {
+    next(error)
+  }
+}

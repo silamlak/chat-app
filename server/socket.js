@@ -74,6 +74,13 @@ io.on("connection", (socket) => {
     socket.to(user?.socketId).emit("recieveNewConversation", sendData);
   });
 
+  socket.on("updateMessageRead", async (data) => {
+    console.log(data)
+    const senderUser = await userModel.findById(data?.sender)
+    console.log(senderUser);
+    socket.to(senderUser?.socketId).emit("recieveupdateMessageRead", data);
+  });
+
   socket.on("disconnect", async () => {
     console.log("User disconnected", socket.id);
 

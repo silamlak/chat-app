@@ -1,20 +1,29 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { getconversations, getNewUsers } from "../feature/chat/chatApi";
+import {
+  getconversations,
+  getNewUsers,
+  updateReadMessage,
+} from "../feature/chat/chatApi";
 import {
   addChatFriend,
   addconversations,
   selectconversation,
+  updateMessageRead,
 } from "../feature/chat/chatSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Theme from "../utils/theme";
 import Avatar from "./Avatar";
+import socket from "../utils/socketConection";
 
 const ChatUsers = () => {
   const navigate = useNavigate();
   const conversations = useSelector((state) => state.chat.conversation) || [];
-  // const myId = useSelector((state) => state.auth.userId);
+  const selectedConversation = useSelector(
+    (state) => state.chat.selectedConversation
+  );
+  const myId = useSelector((state) => state.auth.userId);
   const [newUser, setNewUser] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,17 +37,37 @@ const ChatUsers = () => {
   });
 
   useEffect(() => {
+    socket.on("recieveupdateMessageRead", (data) => {
+      dispatch(updateMessageRead(data?.conversationId));
+    });
+  }, [dispatch]);
+
+  useEffect(() => {
     if (data) {
       dispatch(addconversations(data));
     }
   }, [data, dispatch]);
 
+  const mutation = useMutation({
+    mutationFn: (ids) => updateReadMessage(ids),
+    onSuccess: (data) => {
+      console.log(data);
+      socket.emit("updateMessageRead", data);
+      dispatch(updateMessageRead(selectedConversation?._id));
+    },
+  });
+
   const handleUserClick = (conversation) => {
     if (!conversation) return;
-
     dispatch(selectconversation(conversation));
     dispatch(addChatFriend(conversation?.friend));
     navigate(`/${conversation?._id}`);
+    if (!conversation?.message?.isRead) {
+      mutation.mutate({
+        conversationId: conversation?._id,
+        messageId: conversation?.message?._id,
+      });
+    }
   };
 
   const { data: newUsers, isLoading } = useQuery({
@@ -148,6 +177,7 @@ const ChatUsers = () => {
           </div>
         </div>
       )}
+
       <Theme />
       <div className="dark:text-slate-50 p-4 overflow-y-auto">
         <div className="mb-4">
@@ -171,7 +201,25 @@ const ChatUsers = () => {
                     <h3 className="font-semibold">
                       {conversation?.friend?.name}
                     </h3>
-                    <p className="text-sm">Online</p>
+                    {conversation?.message?.sender == myId && (
+                      <div className="relative">
+                        <p className={` whitespace-nowrap `}>
+                          {conversation?.message?.text}
+                        </p>
+                        {conversation?.message?.isRead ? (
+                          <p>Read</p>
+                        ) : (
+                          <p>Not-Read</p>
+                        )}
+                      </div>
+                    )}
+                    <p
+                      className={` whitespace-nowrap ${
+                        conversation?.message?.isRead ? `text-sm` : `font-bold`
+                      } `}
+                    >
+                      {conversation?.message?.text}
+                    </p>
                   </div>
                 </li>
               ))}

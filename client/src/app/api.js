@@ -72,4 +72,5 @@ export const endpoints = {
   new_users: `/chat/new-users`,
   messages: `/chat/get-messages`,
   send_messages: `/chat/create-messages`,
+  read_message: `/chat/read-messages`,
 };

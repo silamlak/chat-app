@@ -74,6 +74,24 @@ const chatSlice = createSlice({
         })
       }
     },
+    updateLastMessageInConversation(state, action){
+      if(state.conversation){
+        state.conversation.forEach((conversation) => {
+          if(conversation._id == action?.payload?.conversationId) {
+            conversation.message = action.payload
+          }
+        })
+      }
+    },
+    updateMessageRead(state, action){
+      if(state.conversation){
+        state.conversation.forEach((conversation) => {
+          if(conversation._id == action?.payload) {
+            conversation.message.isRead = true
+          }
+        })
+      }
+    },
 
     clearMessage(state) {
       state.messages = [];
@@ -93,6 +111,8 @@ export const {
   pushConversation,
   updateOnlineConversation,
   updateOfflineConversation,
+  updateLastMessageInConversation,
+  updateMessageRead,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

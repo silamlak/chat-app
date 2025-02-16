@@ -5,6 +5,7 @@ import {
   getConversations,
   getMessages,
   getNewUsers,
+  updateMessageRead,
 } from "../controller/chat.controller.js";
 import authorization from "../middleware/autherization.middleware.js";
 
@@ -19,5 +20,6 @@ chatRouter.post(
   authorization,
   createMessages
 );
+chatRouter.put("/read-messages/:conversation_id/:message_id", authorization, updateMessageRead);
 
 export default chatRouter;

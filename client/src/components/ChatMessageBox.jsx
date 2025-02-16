@@ -11,6 +11,7 @@ import {
   pushMessages,
   pushMineMessage,
   selectconversation,
+  updateLastMessageInConversation,
 } from "../feature/chat/chatSlice";
 import { useEffect, useState } from "react";
 import socket from "../utils/socketConection";
@@ -52,22 +53,20 @@ const ChatMessageBox = () => {
         text,
         sender: myId,
         reciever: chatFriend?._id,
+        createdAt: Date.now()
       };
 
-      dispatch(pushMineMessage(body));
+      dispatch(pushMineMessage(data?.message));
+      dispatch(updateLastMessageInConversation(data?.message));
 
       const { conversationWithUser } = data;
-      console.log("Response data:", data);
 
       if (!conversationWithUser) {
-        console.log("Sending message via socket", body);
         socket.emit("sendMessage", body);
       } else {
         navigate(`/${conversationWithUser._id}`);
-        console.log("New conversation detected:", conversationWithUser);
         dispatch(addconversations([conversationWithUser]));
         dispatch(selectconversation(conversationWithUser));
-        // dispatch(addChatFriend(conversationWithUser?.friend))
         const conversationData = {
           message: conversationWithUser,
           friendId: conversationWithUser?.friend?._id,

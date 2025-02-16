@@ -1,5 +1,5 @@
-import axiosInstance, { endpoints } from '../../app/api'
-import {handleApiError} from '../../errorHandller/error.handler.js'
+import axiosInstance, { endpoints } from "../../app/api";
+import { handleApiError } from "../../errorHandller/error.handler.js";
 
 export const getconversations = async () => {
   try {
@@ -13,22 +13,21 @@ export const getconversations = async () => {
 };
 
 export const getMessages = async (userId) => {
-    try {
-        const res = await axiosInstance.get(`${endpoints.messages}/${userId}`, {
-            withCredentials: true,
-        });
-        return res.data;
-    } catch (error) {
-        return handleApiError(error);
-    }
-}
+  try {
+    const res = await axiosInstance.get(`${endpoints.messages}/${userId}`, {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
 
 export const sendMessage = async (conversationId, data) => {
-console.log(data)
   try {
     const res = await axiosInstance.post(
       `${endpoints.send_messages}/${conversationId}`,
-      data, 
+      data,
       {
         withCredentials: true,
       }
@@ -44,6 +43,21 @@ export const getNewUsers = async () => {
     const res = await axiosInstance.get(endpoints.new_users, {
       withCredentials: true,
     });
+    return res.data;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const updateReadMessage = async (ids) => {
+  try {
+    const { conversationId, messageId } = ids;
+    const res = await axiosInstance.put(
+      `${endpoints.read_message}/${conversationId}/${messageId}`,
+      {
+        withCredentials: true,
+      }
+    );
     return res.data;
   } catch (error) {
     return handleApiError(error);
