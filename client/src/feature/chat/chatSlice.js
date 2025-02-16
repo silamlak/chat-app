@@ -56,6 +56,24 @@ const chatSlice = createSlice({
     addChatFriend(state, action) {
       state.chatFriend = action.payload;
     },
+    updateOnlineConversation(state, action){
+      if(state.conversation){
+        state.conversation.forEach((conversation) => {
+          if (conversation.friend._id == action?.payload) {
+            conversation.friend.isOnline = true;
+          }
+        });
+      }
+    },
+    updateOfflineConversation(state, action){
+      if(state.conversation){
+        state.conversation.forEach((conversation) => {
+          if(conversation.friend._id == action?.payload) {
+            conversation.friend.isOnline = false
+          }
+        })
+      }
+    },
 
     clearMessage(state) {
       state.messages = [];
@@ -73,6 +91,8 @@ export const {
   addChatFriend,
   pushMineMessage,
   pushConversation,
+  updateOnlineConversation,
+  updateOfflineConversation,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

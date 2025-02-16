@@ -165,6 +165,7 @@ const ChatUsers = () => {
                     name={conversation?.friend?.name}
                     imageUrl={conversation?.friend?.imageUrl}
                     size={50}
+                    isOnline={conversation?.friend?.isOnline}
                   />
                   <div>
                     <h3 className="font-semibold">

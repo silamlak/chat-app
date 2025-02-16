@@ -1,6 +1,6 @@
 import { IoPersonSharp } from "react-icons/io5";
 
-const Avatar = ({ name, imageUrl, size = 20, online = true }) => {
+const Avatar = ({ name, imageUrl, size = 20, isOnline = true }) => {
   const getInitials = (name) => {
     const nameParts = name?.split(" ");
     const initials = nameParts?.map((part) => part[0].toUpperCase()).join("");
@@ -28,7 +28,7 @@ const Avatar = ({ name, imageUrl, size = 20, online = true }) => {
         </span>
       )}
       {/* {online && ( */}
-      <span className="absolute top-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+      { isOnline && <span className="absolute top-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>}
     </div>
   );
 };
