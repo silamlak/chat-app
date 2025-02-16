@@ -1,4 +1,4 @@
-import {createSlice} from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   conversation: [],
@@ -25,8 +25,31 @@ const chatSlice = createSlice({
       state.messages = action.payload;
     },
     pushMessages(state, action) {
+      console.log("Selected Conversation:", state.selectedConversation);
+      console.log("Action Payload:", action.payload);
+
+      if (!state.selectedConversation) {
+        console.warn("No selected conversation found!");
+        return;
+      }
+
+      if (!state.selectedConversation?.friend?._id) {
+        console.warn("Selected conversation has no friend ID!");
+        return;
+      }
+
+      if (action?.payload?.sender !== state.selectedConversation?.friend?._id) {
+        console.warn("Sender does not match selected conversation friend ID!");
+        return;
+      }
+
+      state.messages.push(action.payload);
+      console.log("Message added:", action.payload);
+    },
+    pushMineMessage(state, action) {
       state.messages.push(action.payload);
     },
+
     addConversation(state, action) {
       state.conversationId = action.payload;
     },
@@ -48,6 +71,7 @@ export const {
   pushMessages,
   clearMessage,
   addChatFriend,
+  pushMineMessage,
   pushConversation,
 } = chatSlice.actions;
 

@@ -37,9 +37,18 @@ io.on("connection", (socket) => {
   })
 
   socket.on("sendNewConversation", async (data) => {
-    const { message, friendId } = data;
-    console.log(message, friendId);
-    socket.to(friendId).emit("recieveNewConversation", message);
+    const { message, friendId, sender } = data;
+
+    const user = await userModel.findById(friendId);
+    const mineProfile = await userModel.findById(sender);
+
+    const sendData = {
+      ...message,
+      friend: {
+        ...mineProfile?._doc,
+      },
+    };
+    socket.to(user?.socketId).emit("recieveNewConversation", sendData);
   });
 
   socket.on("disconnected", () => {

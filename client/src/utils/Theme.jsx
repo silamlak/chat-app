@@ -5,7 +5,6 @@ import {changeTheme} from '../feature/themeSlice'
 const Theme = () => {
   const dispatch = useDispatch()
   const myTheme = useSelector(state => state.theme.theme)
-  console.log(myTheme)
   const [theme, setTheme] = useState(myTheme) || 'light';
 
   useEffect(() => {

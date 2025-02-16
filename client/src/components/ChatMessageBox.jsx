@@ -3,10 +3,14 @@ import { getMessages, sendMessage } from "../feature/chat/chatApi";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addChatFriend,
+  addConversation,
+  addconversations,
   addMessages,
   clearMessage,
   pushConversation,
   pushMessages,
+  pushMineMessage,
+  selectconversation,
 } from "../feature/chat/chatSlice";
 import { useEffect, useState } from "react";
 import socket from "../utils/socketConection";
@@ -17,14 +21,17 @@ const ChatMessageBox = () => {
   const dispatch = useDispatch();
   const messages = useSelector((state) => state.chat.messages);
   const conversation = useSelector((state) => state.chat.selectedConversation);
+  const conversations = useSelector((state) => state.chat.conversation);
   const chatFriend = useSelector((state) => state.chat.chatFriend);
   const myId = useSelector((state) => state.auth.userId);
   const [text, setText] = useState("");
   const navigate = useNavigate();
 
+  // console.log(messages);
+
   useEffect(() => {
     dispatch(clearMessage());
-  }, [conversation, dispatch]);
+  }, [dispatch]);
 
   const { data: messageData, isLoading } = useQuery({
     queryKey: ["messages", conversation?._id],
@@ -41,37 +48,49 @@ const ChatMessageBox = () => {
   const mutation = useMutation({
     mutationFn: (text) => sendMessage(conversation?._id, text),
     onSuccess: (data) => {
-
       const body = {
         text,
         sender: myId,
         reciever: chatFriend?._id,
       };
-      socket.emit("sendMessage", body);
-      dispatch(pushMessages(body));
-      const {conversationWithUser} = data
-      if (conversationWithUser){
-        dispatch(pushConversation(data?.conversationWithUser));
-        dispatch(addChatFriend(data?.conversationWithUser?.friend));
-        navigate(`/${data?.conversationWithUser._id}`);
-        socket.emit("sendNewConversation", {
-          message: data?.conversationWithUser,
-          friendId: data?.conversationWithUser?.friend?._id,
-        });
+
+      dispatch(pushMineMessage(body));
+
+      const { conversationWithUser } = data;
+      console.log("Response data:", data);
+
+      if (!conversationWithUser) {
+        console.log("Sending message via socket", body);
+        socket.emit("sendMessage", body);
+      } else {
+        navigate(`/${conversationWithUser._id}`);
+        console.log("New conversation detected:", conversationWithUser);
+        dispatch(addconversations([conversationWithUser]));
+        dispatch(selectconversation(conversationWithUser));
+        // dispatch(addChatFriend(conversationWithUser?.friend))
+        const conversationData = {
+          message: conversationWithUser,
+          friendId: conversationWithUser?.friend?._id,
+          sender: myId,
+        };
+
+        console.log("Sending new conversation event", conversationData);
+        socket.emit("sendNewConversation", conversationData);
       }
+
       setText("");
     },
   });
 
   useEffect(() => {
-    socket.on('recieveNewConversation', (data) => {
-      console.log(data)
+    socket.on("recieveNewConversation", (data) => {
+      console.log(data);
       dispatch(pushConversation(data));
-    })
+    });
     return () => {
       socket.off("recieveNewConversation");
-    }
-  }, [dispatch])
+    };
+  }, [dispatch]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -85,6 +104,7 @@ const ChatMessageBox = () => {
   useEffect(() => {
     socket.on("recieveMessage", (data) => {
       dispatch(pushMessages(data));
+      console.log(data);
     });
     return () => {
       socket.off("recieveMessage");

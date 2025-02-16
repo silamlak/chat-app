@@ -76,7 +76,7 @@ export const createMessages = async (req, res, next) => {
     let { conversation_id } = req.params;
     const id = req.user._id.toString();
     let newConversation;
-    console.log(conversation_id, id);
+    // console.log(conversation_id, id);
     if (
       conversation_id === "undefined" ||
       conversation_id === "null" ||
@@ -87,8 +87,6 @@ export const createMessages = async (req, res, next) => {
       });
       conversation_id = newConversation._id?.toString();
     }
-
-    console.log(req.body);
 
     const message = await messageModel.create({
       ...req.body,

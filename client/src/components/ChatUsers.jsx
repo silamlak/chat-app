@@ -16,9 +16,9 @@ const ChatUsers = () => {
   const conversations = useSelector((state) => state.chat.conversation) || [];
   // const myId = useSelector((state) => state.auth.userId);
   const [newUser, setNewUser] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [isModalOpen, setIsModalOpen] = useState(false); // Modal open/close state
-    const usersPerPage = 2; 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const usersPerPage = 2;
 
   const dispatch = useDispatch();
 
@@ -35,7 +35,7 @@ const ChatUsers = () => {
 
   const handleUserClick = (conversation) => {
     if (!conversation) return;
-    console.log(conversation);
+
     dispatch(selectconversation(conversation));
     dispatch(addChatFriend(conversation?.friend));
     navigate(`/${conversation?._id}`);
@@ -51,7 +51,9 @@ const ChatUsers = () => {
   const totalPages = newUsers ? Math.ceil(newUsers.length / usersPerPage) : 1;
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = newUsers ? newUsers.slice(indexOfFirstUser, indexOfLastUser) : [];
+  const currentUsers = newUsers
+    ? newUsers.slice(indexOfFirstUser, indexOfLastUser)
+    : [];
 
   const handleNext = () => {
     if (currentPage < totalPages) {
@@ -78,16 +80,16 @@ const ChatUsers = () => {
   };
   const handleNewUserClick = () => {
     setNewUser(true);
-    openModal()
-  }
+    openModal();
+  };
 
   const getNewUserData = (data) => {
     setNewUser(false);
     dispatch(addChatFriend(data));
-    dispatch(selectconversation('new'));
+    dispatch(selectconversation("new"));
     closeModal();
     navigate(`/new-user`);
-  }
+  };
 
   return (
     <div className="relative">
