@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 if(!MONGO_URI){
     throw new Error('Mongo URI is missing')
 }
-
+console.log(MONGO_URI)
 const connectDB = async () => {
     try {
         await mongoose.connect(MONGO_URI)

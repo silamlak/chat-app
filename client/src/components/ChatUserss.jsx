@@ -17,7 +17,7 @@ import Theme from "../utils/theme";
 import Avatar from "./Avatar";
 import socket from "../utils/socketConection";
 
-const ChatUsers = () => {
+const ChatUserss = () => {
   const navigate = useNavigate();
   const conversations = useSelector((state) => state.chat.conversation) || [];
   const selectedConversation = useSelector(
@@ -119,9 +119,8 @@ const ChatUsers = () => {
     closeModal();
     navigate(`/new-user`);
   };
-
   return (
-    <div className="relative block md:hidden">
+    <div className="relative z-10">
       <button onClick={handleNewUserClick}>get new user</button>
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 top-0 right-0 left-0 flex justify-center items-center z-50">
@@ -230,4 +229,4 @@ const ChatUsers = () => {
   );
 };
 
-export default ChatUsers;
+export default ChatUserss;

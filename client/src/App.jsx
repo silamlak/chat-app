@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import socket from "./utils/socketConection";
 import { updateOfflineConversation, updateOnlineConversation } from "./feature/chat/chatSlice";
+import ChatUsers from "./components/ChatUsers";
 
 // import {io} from 'socket.io-client'
 // const socket = io("http://localhost:5500");
@@ -32,6 +33,10 @@ const App = () => {
       path: "/",
       element: <ChatLayout />,
       children: [
+        {
+          path: "/",
+          element: <ChatUsers />,
+        },
         {
           path: "/:id",
           element: <ChatMessageBox />,
