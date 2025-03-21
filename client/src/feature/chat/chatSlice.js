@@ -96,6 +96,10 @@ const chatSlice = createSlice({
     clearMessage(state) {
       state.messages = [];
     },
+
+    clearSelecetedConversation(state) {
+      state.selectedConversation = null
+    },
   },
 });
 
@@ -113,6 +117,7 @@ export const {
   updateOfflineConversation,
   updateLastMessageInConversation,
   updateMessageRead,
+  clearSelecetedConversation,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

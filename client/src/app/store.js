@@ -6,6 +6,7 @@ import { combineReducers } from "redux";
 import authReducer from '../feature/authSlice'
 import chatReducer from '../feature/chat/chatSlice'
 import themeReducer from '../feature/themeSlice';
+import loaderReducer from '../feature/loaderSlice'
 
 const persistConfig = {
   key: "root",
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   chat: chatReducer,
   theme: themeReducer,
+  loader: loaderReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

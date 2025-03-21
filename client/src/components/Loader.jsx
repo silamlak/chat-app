@@ -1,7 +1,7 @@
 import React from "react";
 
 export const SpinnerLoader = () => (
-  <div className="w-16 h-16 border-8 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+  <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
 );
 
 export const DotsLoader = () => (
@@ -15,20 +15,28 @@ export const DotsLoader = () => (
 );
 
 export const CircularLoader = () => (
-  <svg className="w-16 h-16 animate-spin" viewBox="25 25 50 50">
+  <svg className="w-6 h-6 animate-spin" viewBox="0 0 100 100">
     <circle
       className="stroke-current text-blue-500"
       cx="50"
       cy="50"
-      r="20"
+      r="40"
       fill="none"
-      strokeWidth="6"
+      strokeWidth="12"
       strokeLinecap="round"
-      strokeDasharray="125"
-      strokeDashoffset="0"
-    ></circle>
+      strokeDasharray="90"
+      strokeDashoffset="80"
+    >
+      <animate
+        attributeName="stroke-dashoffset"
+        values="0; 80"
+        // dur="2s"
+        repeatCount="indefinite"
+      />
+    </circle>
   </svg>
 );
+
 
 export const BarsLoader = () => (
   <div className="flex space-x-1">

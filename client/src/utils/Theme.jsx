@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import {useDispatch, useSelector} from 'react-redux'
 import {changeTheme} from '../feature/themeSlice'
+import { CgDarkMode } from "react-icons/cg";
+import { MdLightMode } from "react-icons/md";
 
 const Theme = () => {
   const dispatch = useDispatch()
+ const isLoadingStatus = useSelector((state) => state.loader.isLoading);
   const myTheme = useSelector(state => state.theme.theme)
   const [theme, setTheme] = useState(myTheme) || 'light';
 
@@ -19,9 +22,15 @@ const Theme = () => {
     <div>
       <button
         onClick={toggleTheme}
-        className="p-2 mt-4 ml-4 text-gray-800 dark:text-gray-200 bg-gray-200 dark:bg-gray-800 rounded"
+        className={`${
+          isLoadingStatus ? "cursor-not-allowed" : "cursor-pointer"
+        } button-css`}
       >
-        Toggle Theme
+        {myTheme === "light" ? (
+          <CgDarkMode />
+        ) : (
+          <MdLightMode className="text-slate-100 font-extrabold text" />
+        )}
       </button>
     </div>
   );
