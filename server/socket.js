@@ -60,16 +60,18 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendNewConversation", async (data) => {
-    const { message, friendId, sender } = data;
+    const { message, friendId, sender, _id } = data;
 
     const user = await userModel.findById(friendId);
     const mineProfile = await userModel.findById(sender);
 
     const sendData = {
-      ...message,
+      message,
       friend: {
         ...mineProfile?._doc,
       },
+      participants: [mineProfile?._id, user?._id],
+      _id,
     };
     socket.to(user?.socketId).emit("recieveNewConversation", sendData);
   });

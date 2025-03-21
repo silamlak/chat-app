@@ -1,9 +1,8 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signUpValidation } from "../utils/hook.validation";
 import { useMutation } from "@tanstack/react-query";
-import { signUp } from "../feature/authApi";
+import { signUp } from "../feature/auth/authApi";
 import { FaUser, FaLock } from "react-icons/fa";
 import { MdOutlineEmail } from "react-icons/md";
 import { DotsLoader } from "../components/Loader";

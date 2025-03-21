@@ -1,6 +1,6 @@
 // import axios from "axios";
-import axiosInstance, { endpoints } from "../app/api";
-import { handleApiError } from "../errorHandller/error.handler";
+import axiosInstance, { endpoints } from "../../app/api";
+import { handleApiError } from "../../errorHandller/error.handler";
 
 export const signUp = async (data) => {
   try {

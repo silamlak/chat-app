@@ -1,7 +1,7 @@
 import axios from "axios";
-import {store} from "../app/store";
-import { setUser } from "../feature/authSlice";
-import { logout } from "../feature/authSlice";
+import { store } from "../app/store";
+import { setUser } from "../feature/auth/authSlice";
+import { logout } from "../feature/auth/authSlice";
 const api = "http://localhost:5500/api/v1";
 
 const axiosInstance = axios.create({
@@ -12,7 +12,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     const state = store.getState();
-    const token = state.auth.user
+    const token = state.auth.user;
     // console.log(token)
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

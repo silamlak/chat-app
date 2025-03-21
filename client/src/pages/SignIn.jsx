@@ -2,24 +2,18 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signInValidation } from "../utils/hook.validation";
 import { useMutation } from "@tanstack/react-query";
-import { signIn } from "../feature/authApi";
+import { signIn } from "../feature/auth/authApi";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser, setUserId } from "../feature/authSlice";
+import { setUser, setUserId } from "../feature/auth/authSlice";
 import { IoMdChatboxes } from "react-icons/io";
 import { FaUser, FaLock } from "react-icons/fa";
-import {
-  CircularLoader,
-  DotsLoader,
-  SpinnerLoader,
-  BarsLoader,
-} from "../components/Loader";
+import { DotsLoader } from "../components/Loader";
 import { useNavigate } from "react-router-dom";
 
 const SignIn = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
-  console.log(user);
 
   const {
     register,
@@ -31,10 +25,10 @@ const SignIn = () => {
 
   const mutation = useMutation({
     mutationFn: (data) => signIn(data),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       dispatch(setUser(data?.accessToken));
       dispatch(setUserId(data?.user?._id));
-      navigate('/')
+      if (user) navigate("/");
     },
     onError: (error) => {
       console.log(error);

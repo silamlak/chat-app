@@ -3,12 +3,12 @@ import Avatar from "./Avatar";
 
 const ChatHeader = ({ userName, lastSeen }) => {
   return (
-    <div className="sticky top-0 bg-slate-100 dark:bg-slate-900 flex items-center justify-between p-3">
+    <div className="sticky top-0 bg-slate-50 dark:bg-slate-900 flex items-center justify-between p-2 h-14">
       <div className="flex items-center space-x-2">
-        <Avatar name={userName} size={40} />
-        <h2 className="text-xl font-semibold dark:text-slate-50">{userName}</h2>
+        <Avatar name={userName} size={40} isOnline={lastSeen} />
+        <h2 className="text-md normal-text font-semibold">{userName}</h2>
         <span className="text-sm text-gray-500 dark:text-gray-300">
-          - Last seen: {lastSeen}
+          {lastSeen ? "Online" : "Offline"}
         </span>
       </div>
 

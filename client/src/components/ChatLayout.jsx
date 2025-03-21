@@ -1,19 +1,61 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import ChatUserss from "./ChatUserss";
+import { useEffect } from "react";
+import socket from "../utils/socketConection";
+import { pushConversation, pushMessages } from "../feature/chat/chatSlice";
+import { useDispatch, useSelector } from "react-redux";
+import Avatar from "./Avatar";
+import SignOut from "./SignOut";
 
 const ChatLayout = () => {
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const conversation = useSelector((state) => state.chat.selectedConversation);
+
+  const locationPath = location.pathname;
+
+  useEffect(() => {
+    socket.on("recieveMessage", (data) => {
+      dispatch(pushMessages(data));
+      console.log(data);
+    });
+    return () => {
+      socket.off("recieveMessage");
+    };
+  }, [dispatch]);
+
+    useEffect(() => {
+      socket.on("recieveNewConversation", (data) => {
+        console.log(data);
+        dispatch(pushConversation(data));
+      });
+      return () => {
+        socket.off("recieveNewConversation");
+      };
+    }, [dispatch]);
   return (
     <div className="font-[Lato]">
       <div className="md:flex z-50 h-screen hidden">
-        <div className="w-1/4 h-screen custom-base sticky top-0 overflow-y-auto overflow-x-hidden">
+        <div className="w-1/4 h-screen custom-base sticky flex flex-col justify-between top-0 overflow-y-auto overflow-x-hidden">
           <ChatUserss />
+          <div className="bg-blue-300 p-2 flex justify-between items-center">
+            <Avatar  />
+            <SignOut />
+          </div>
         </div>
         <main className="flex-1 overflow-y-auto">
+          {locationPath === "/" && (
+            <div className="w-full h-screen flex justify-center items-center bg-slate-100 dark:bg-slate-800">
+              <div className="p-2 bg-slate-50 shadow dark:bg-slate-700 rounded-4xl">
+                <p className="small-text text-[14px]">Start Conversation</p>
+              </div>
+            </div>
+          )}
           <Outlet />
         </main>
       </div>
-      <div className="flex md:hidden h-screen ">
-        <main className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex md:hidden h-screen">
+        <main className="flex-1 overflow-y-auto w-full bg-slate-700 overflow-x-hidden">
           <Outlet />
         </main>
       </div>

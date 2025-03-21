@@ -6,24 +6,29 @@ import ChatMessageBox from "./components/ChatMessageBox";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import socket from "./utils/socketConection";
-import { updateOfflineConversation, updateOnlineConversation } from "./feature/chat/chatSlice";
+import {
+  updateOfflineConversation,
+  updateOnlineConversation,
+} from "./feature/chat/chatSlice";
 import ChatUsers from "./components/ChatUsers";
+import PublicRoute from "./components/hoc/PublicRoute";
+import PrivateRoute from "./components/hoc/PrivateRoute";
 
 // import {io} from 'socket.io-client'
 // const socket = io("http://localhost:5500");
 
 const App = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const userId = useSelector((state) => state.auth.userId);
 
   useEffect(() => {
     socket.emit("join", userId);
     socket.on("onlineUserRecieve", (id) => {
-      console.log(id);
+      // console.log(id);
       dispatch(updateOnlineConversation(id));
     });
     socket.on("offlineUserRecieve", (id) => {
-      console.log("Offline", id);
+      // console.log("Offline", id);
       dispatch(updateOfflineConversation(id));
     });
   }, [userId, dispatch]);
@@ -31,7 +36,11 @@ const App = () => {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <ChatLayout />,
+      element: (
+        <PrivateRoute>
+          <ChatLayout />
+        </PrivateRoute>
+      ),
       children: [
         {
           path: "/",
@@ -45,11 +54,19 @@ const App = () => {
     },
     {
       path: "/sign-up",
-      element: <SignUp />,
+      element: (
+        <PublicRoute>
+          <SignUp />
+        </PublicRoute>
+      ),
     },
     {
       path: "/sign-in",
-      element: <SignIn />,
+      element: (
+        <PublicRoute>
+          <SignIn />
+        </PublicRoute>
+      ),
     },
   ]);
 

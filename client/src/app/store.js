@@ -1,12 +1,12 @@
-import {configureStore} from '@reduxjs/toolkit'
+import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import { combineReducers } from "redux";
 
-import authReducer from '../feature/authSlice'
-import chatReducer from '../feature/chat/chatSlice'
-import themeReducer from '../feature/themeSlice';
-import loaderReducer from '../feature/loaderSlice'
+import authReducer from "../feature/auth/authSlice";
+import chatReducer from "../feature/chat/chatSlice";
+import themeReducer from "../feature/themeSlice";
+import loaderReducer from "../feature/loaderSlice";
 
 const persistConfig = {
   key: "root",
