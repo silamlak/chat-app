@@ -18,6 +18,7 @@ import NewFriens from "./NewFriens";
 import UserchatSearch from "./UserchatSearch";
 import { CircularLoader } from "./Loader";
 import { SiNike } from "react-icons/si";
+import { setLoading } from "../feature/loaderSlice";
 
 const ChatUserss = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const ChatUserss = () => {
   const myId = useSelector((state) => state.auth.userId);
   const dispatch = useDispatch();
 
-  const { data } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["conversations"],
     queryFn: getconversations,
   });
@@ -107,6 +108,10 @@ const ChatUserss = () => {
     return text?.length > maxLength ? text.slice(0, maxLength) + "..." : text;
   };
 
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [conversations, isLoading, dispatch]);
+
   return (
     <div>
       <div className="reltive z-10 w-full overflow-x-hidden">
@@ -120,74 +125,82 @@ const ChatUserss = () => {
         </div>
         <div className="dark:text-slate-50 p- overflow-y-auto">
           <div className="mb-4">
-            {/* <h2 className="text-xl font-semibold mb-2">Contacts</h2> */}
-            <ul>
-              {Array.isArray(conversations) &&
-                conversations &&
-                conversations?.map((conversation) => (
-                  <li
-                    key={conversation?._id}
-                    onClick={() => handleUserClick(conversation)}
-                    className={`${
-                      selectedConversation?._id === conversation?._id
-                        ? "bg-blue-200 dark:bg-blue-900"
-                        : "bg-slate-100 dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-gray-800"
-                    } relative flex items-center p-2 cursor-pointer transition-none duration-300 mb-1`}
-                  >
-                    <Avatar
-                      name={conversation?.friend?.name}
-                      imageUrl={conversation?.friend?.imageUrl}
-                      size={40}
-                      isOnline={conversation?.friend?.isOnline}
-                    />
-                    <div>
-                      <h3 className="font-semibold text-slate-900 dark:text-slate-200">
-                        {conversation?.friend?.name}
-                      </h3>
-                      {conversation?.message?.sender == myId && (
-                        <div className="">
-                          {conversation?.message?.isRead ? (
-                            <div>
+            {isError && error && (
+              <div className="flex justify-center mt-6">
+                <h2 className="text-sm normal-text font-semibold mb-2">
+                  Unable to fetch conversations
+                </h2>
+              </div>
+            )}
+            {conversations &&  !isError && (
+              <ul>
+                {Array.isArray(conversations) &&
+                  conversations &&
+                  conversations?.map((conversation) => (
+                    <li
+                      key={conversation?._id}
+                      onClick={() => handleUserClick(conversation)}
+                      className={`${
+                        selectedConversation?._id === conversation?._id
+                          ? "bg-blue-200 dark:bg-blue-900"
+                          : "bg-slate-100 dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      } relative flex items-center p-2 cursor-pointer transition-none duration-300 mb-1`}
+                    >
+                      <Avatar
+                        name={conversation?.friend?.name}
+                        imageUrl={conversation?.friend?.imageUrl}
+                        size={40}
+                        isOnline={conversation?.friend?.isOnline}
+                      />
+                      <div>
+                        <h3 className="font-semibold text-slate-900 dark:text-slate-200">
+                          {conversation?.friend?.name}
+                        </h3>
+                        {conversation?.message?.sender == myId && (
+                          <div className="">
+                            {conversation?.message?.isRead ? (
+                              <div>
+                                <div>
+                                  <SiNike className="text-blue-500 absolute top-6 -translate-y-1/2 right-10" />
+                                  <SiNike className="text-blue-500 absolute top-5 -translate-y-1/2 right-[38px]" />
+                                </div>
+                                <div>
+                                  <p className="text-[10px] absolute small-text top-[22px] -translate-y-1/2 right-2">
+                                    {formatChatTimestamp(
+                                      conversation?.message?.createdAt
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            ) : (
                               <div>
                                 <SiNike className="text-blue-500 absolute top-6 -translate-y-1/2 right-10" />
-                                <SiNike className="text-blue-500 absolute top-5 -translate-y-1/2 right-[38px]" />
+                                <div>
+                                  <p className="text-[10px] small-text absolute top-[24px] -translate-y-1/2 right-2">
+                                    {formatChatTimestamp(
+                                      conversation?.message?.createdAt
+                                    )}
+                                  </p>
+                                </div>
                               </div>
-                              <div>
-                                <p className="text-[10px] absolute small-text top-[22px] -translate-y-1/2 right-2">
-                                  {formatChatTimestamp(
-                                    conversation?.message?.createdAt
-                                  )}
-                                </p>
-                              </div>
-                            </div>
-                          ) : (
-                            <div>
-                              <SiNike className="text-blue-500 absolute top-6 -translate-y-1/2 right-10" />
-                              <div>
-                                <p className="text-[10px] small-text absolute top-[24px] -translate-y-1/2 right-2">
-                                  {formatChatTimestamp(
-                                    conversation?.message?.createdAt
-                                  )}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      <p
-                        className={`w-full overflow-hidden text-ellipsis whitespace-nowrap text-slate-700 dark:text-slate-300 ${
-                          conversation?.message?.sender !== myId &&
-                          !conversation?.message?.isRead
-                            ? "text-sm font-semibold"
-                            : "text-sm font-normal"
-                        }  `}
-                      >
-                        {truncateText(conversation?.message?.text, 22)}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-            </ul>
+                            )}
+                          </div>
+                        )}
+                        <p
+                          className={`w-full overflow-hidden text-ellipsis whitespace-nowrap text-slate-700 dark:text-slate-300 ${
+                            conversation?.message?.sender !== myId &&
+                            !conversation?.message?.isRead
+                              ? "text-sm font-semibold"
+                              : "text-sm font-normal"
+                          }  `}
+                        >
+                          {truncateText(conversation?.message?.text, 22)}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+              </ul>
+            )}
           </div>
         </div>
       </div>

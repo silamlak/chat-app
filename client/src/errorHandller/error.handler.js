@@ -7,9 +7,11 @@ export const handleApiError = (error) => {
     // The request was made and the server responded with a status code
     // that falls out of the range of 2xx
     console.error("API Error Response:", error.response.data);
+    // if (error.response.status === 401) return
     errorMessage =
       error.response.data.error ||
-      "An error occurred while processing your request.";
+      error.response?.data?.message ||
+      "An unexpected error occurred. Please try again later.";
   } else if (error.request) {
     // The request was made but no response was received
     console.error("API Error Request:", error.request);

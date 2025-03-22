@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-  refeshToken,
+  refreshToken,
   signIn,
   signOut,
   signUp,
@@ -15,6 +15,6 @@ authRouter.post("/sign-in", signIn);
 
 authRouter.post("/sign-out", authorization, signOut);
 
-authRouter.post("/refresh", refeshToken);
+authRouter.post("/refresh", refreshToken);
 
 export default authRouter;

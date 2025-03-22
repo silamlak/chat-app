@@ -13,7 +13,7 @@ axiosInstance.interceptors.request.use(
   (config) => {
     const state = store.getState();
     const token = state.auth.user;
-    // console.log(token)
+    console.log(token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -31,7 +31,12 @@ axiosInstance.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    if (error.response.status === 403 && !originalRequest._retry) {
+    console.log(error.response.status);
+    if (
+      // error.response.status === 403 &&
+      error.response.status === 401 &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
       try {
         const response = await axios.post(
@@ -41,15 +46,15 @@ axiosInstance.interceptors.response.use(
             withCredentials: true,
           }
         );
-        // console.log(response.data);
-        const newAccessToken = response?.data?.token;
+        console.log(response.data);
+        const newAccessToken = response?.data?.newToken;
         store.dispatch(setUser(newAccessToken));
         axiosInstance.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${newAccessToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        store.dispatch(logout());
+        // store.dispatch(logout());
         console.error("Refresh token failed", refreshError);
       }
     }
