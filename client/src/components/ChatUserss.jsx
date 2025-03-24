@@ -11,7 +11,7 @@ import {
 } from "../feature/chat/chatSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import Theme from "../utils/theme";
+import Theme from "../utils/Theme";
 import Avatar from "./Avatar";
 import socket from "../utils/socketConection";
 import NewFriens from "./NewFriens";
@@ -42,9 +42,9 @@ const ChatUserss = () => {
   const isValidFormat = /^\/[0-9a-fA-F]{24}$/.test(currentUrl);
 
   useEffect(() => {
-    socket.on("recieveupdateMessageRead", (data) => {
-      dispatch(updateMessageRead(data?.conversationId));
-    });
+    // socket.on("recieveupdateMessageRead", (data) => {
+    //   dispatch(updateMessageRead(data?.conversationId));
+    // });
     if (!isValidFormat) {
       dispatch(clearSelecetedConversation());
     }

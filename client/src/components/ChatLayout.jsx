@@ -2,7 +2,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import ChatUserss from "./ChatUserss";
 import { useEffect } from "react";
 import socket from "../utils/socketConection";
-import { pushConversation, pushMessages } from "../feature/chat/chatSlice";
+import { pushConversation, pushMessages, updateMessageRead } from "../feature/chat/chatSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Avatar from "./Avatar";
 import SignOut from "./SignOut";
@@ -14,6 +14,7 @@ const ChatLayout = () => {
 
   const locationPath = location.pathname;
 
+  //recieve messsages
   useEffect(() => {
     socket.on("recieveMessage", (data) => {
       dispatch(pushMessages(data));
@@ -24,6 +25,7 @@ const ChatLayout = () => {
     };
   }, [dispatch]);
 
+  //recieve new conversation
     useEffect(() => {
       socket.on("recieveNewConversation", (data) => {
         console.log(data);
@@ -33,6 +35,16 @@ const ChatLayout = () => {
         socket.off("recieveNewConversation");
       };
     }, [dispatch]);
+
+    //recieve update message read
+      useEffect(() => {
+        socket.on("recieveupdateMessageRead", (data) => {
+          dispatch(updateMessageRead(data?.conversationId));
+        });
+        return () => {
+          socket.off("recieveupdateMessageRead");
+        }
+      }, [dispatch]);
   return (
     <div className="font-[Lato]">
       <div className="md:flex z-50 h-screen hidden">
