@@ -1,14 +1,36 @@
 import { IoCall, IoEllipsisVertical } from "react-icons/io5";
 import Avatar from "./Avatar";
 
-const ChatHeader = ({ userName, lastSeen }) => {
+const ChatHeader = ({ userName, lastSeen, isOnline }) => {
+  //create date changer function
+  const formatChatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+
+    const isToday = date.toDateString() === now.toDateString();
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(now.getDate() - 7);
+
+    if (isToday) {
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }); // "16:56"
+    } else if (date > oneWeekAgo) {
+      return date.toLocaleDateString("en-US", { weekday: "short" });
+    } else {
+      return date.toLocaleDateString("en-US");
+    }
+  };
+
   return (
     <div className="sticky top-0 bg-slate-50 dark:bg-slate-900 flex items-center justify-between p-2 h-14">
       <div className="flex items-center space-x-2">
-        <Avatar name={userName} size={40} isOnline={lastSeen} />
+        <Avatar name={userName} size={40} isOnline={isOnline} />
         <h2 className="text-md normal-text font-semibold">{userName}</h2>
-        <span className="text-sm text-gray-500 dark:text-gray-300">
-          {lastSeen ? "Online" : "Offline"}
+        <span className="text-[12px] text-gray-500 dark:text-gray-300">
+          {isOnline ? "Online" : formatChatTimestamp(lastSeen)}
         </span>
       </div>
 

@@ -17,12 +17,12 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   // console.log("A user connected", socket.id);
   socket.on("join", async (userId) => {
-        console.log("user joined");
+    console.log("user joined");
     if (userId) {
       await userModel.findByIdAndUpdate(
         userId,
         {
-          $set: { socketId: socket.id, isOnline: true },
+          $set: { socketId: socket.id, isOnline: true, lastSeen: new Date() },
         },
         { new: true }
       );
@@ -36,11 +36,11 @@ io.on("connection", (socket) => {
           );
           return acc.concat(friends);
         }, []);
-       const users = await Promise.all(
-         friendIds.map(async (friendId) => {
-           return await userModel.findOne({ _id: friendId }); // Returns a single object
-         })
-       );
+        const users = await Promise.all(
+          friendIds.map(async (friendId) => {
+            return await userModel.findOne({ _id: friendId }); // Returns a single object
+          })
+        );
 
         users?.map((user) => {
           socket.to(user?.socketId).emit("onlineUserRecieve", userId);
@@ -77,8 +77,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("updateMessageRead", async (data) => {
-    console.log(data)
-    const senderUser = await userModel.findById(data?.sender)
+    console.log(data);
+    const senderUser = await userModel.findById(data?.sender);
     console.log(senderUser);
     socket.to(senderUser?.socketId).emit("recieveupdateMessageRead", data);
   });
@@ -89,14 +89,14 @@ io.on("connection", (socket) => {
     // Optionally update the user status to offline when disconnected
     const user = await userModel.findOne({ socketId: socket.id });
 
-    let userId
+    let userId;
 
     if (user) {
       await userModel.findByIdAndUpdate(user._id, {
         $set: { isOnline: false }, // Set user as offline and clear socketId
       });
       console.log(`${user.username} is now offline`);
-      userId = user?._id
+      userId = user?._id;
     }
 
     // Optionally, notify other users that this user is offline
@@ -115,7 +115,7 @@ io.on("connection", (socket) => {
       friendIds.map(async (friendId) => {
         return await userModel.findOne({ _id: friendId });
       })
-    );  
+    );
 
     users?.forEach((user) => {
       if (user?.socketId) {

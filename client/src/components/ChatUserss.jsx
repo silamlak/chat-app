@@ -42,9 +42,6 @@ const ChatUserss = () => {
   const isValidFormat = /^\/[0-9a-fA-F]{24}$/.test(currentUrl);
 
   useEffect(() => {
-    // socket.on("recieveupdateMessageRead", (data) => {
-    //   dispatch(updateMessageRead(data?.conversationId));
-    // });
     if (!isValidFormat) {
       dispatch(clearSelecetedConversation());
     }
@@ -132,7 +129,7 @@ const ChatUserss = () => {
                 </h2>
               </div>
             )}
-            {conversations &&  !isError && (
+            {conversations && !isError && (
               <ul>
                 {Array.isArray(conversations) &&
                   conversations &&
@@ -156,6 +153,13 @@ const ChatUserss = () => {
                         <h3 className="font-semibold text-slate-900 dark:text-slate-200">
                           {conversation?.friend?.name}
                         </h3>
+                        <div>
+                          <p className="text-[10px] absolute small-text top-[22px] -translate-y-1/2 right-2">
+                            {formatChatTimestamp(
+                              conversation?.message?.createdAt
+                            )}
+                          </p>
+                        </div>
                         {conversation?.message?.sender == myId && (
                           <div className="">
                             {conversation?.message?.isRead ? (
@@ -164,24 +168,10 @@ const ChatUserss = () => {
                                   <SiNike className="text-blue-500 absolute top-6 -translate-y-1/2 right-10" />
                                   <SiNike className="text-blue-500 absolute top-5 -translate-y-1/2 right-[38px]" />
                                 </div>
-                                <div>
-                                  <p className="text-[10px] absolute small-text top-[22px] -translate-y-1/2 right-2">
-                                    {formatChatTimestamp(
-                                      conversation?.message?.createdAt
-                                    )}
-                                  </p>
-                                </div>
                               </div>
                             ) : (
                               <div>
                                 <SiNike className="text-blue-500 absolute top-6 -translate-y-1/2 right-10" />
-                                <div>
-                                  <p className="text-[10px] small-text absolute top-[24px] -translate-y-1/2 right-2">
-                                    {formatChatTimestamp(
-                                      conversation?.message?.createdAt
-                                    )}
-                                  </p>
-                                </div>
                               </div>
                             )}
                           </div>

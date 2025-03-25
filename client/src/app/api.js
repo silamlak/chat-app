@@ -13,7 +13,7 @@ axiosInstance.interceptors.request.use(
   (config) => {
     const state = store.getState();
     const token = state.auth.user;
-    console.log(token);
+    // console.log(token);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -31,7 +31,7 @@ axiosInstance.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    console.log(error.response.status);
+    // console.log(error.response.status);
     if (
       // error.response.status === 403 &&
       error.response.status === 401 &&
@@ -46,7 +46,7 @@ axiosInstance.interceptors.response.use(
             withCredentials: true,
           }
         );
-        console.log(response.data);
+        // console.log(response.data);
         const newAccessToken = response?.data?.newToken;
         store.dispatch(setUser(newAccessToken));
         axiosInstance.defaults.headers.common[

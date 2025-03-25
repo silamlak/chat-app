@@ -16,6 +16,12 @@ const chatSlice = createSlice({
     selectconversation(state, action) {
       state.selectedConversation = action.payload;
     },
+    changeconversation(state, action) {
+      const conversation = state.conversation.find(
+        (conversation) => conversation._id === action.payload
+      );
+      state.selectedConversation = conversation;
+    },
     addNewFriend(state, action) {
       state.newFriend = action.payload;
     },
@@ -27,15 +33,15 @@ const chatSlice = createSlice({
     },
     pushConversation(state, action) {
       console.log(action.payload);
-        if (!Array.isArray(state.conversation)) {
-          state.conversation = [];
-        }
+      if (!Array.isArray(state.conversation)) {
+        state.conversation = [];
+      }
 
-        if (state.conversation.length === 0) {
-          state.conversation = [action.payload];
-        } else {
-          state.conversation.push(action.payload);
-        }
+      if (state.conversation.length === 0) {
+        state.conversation = [action.payload];
+      } else {
+        state.conversation.push(action.payload);
+      }
     },
     addMessages(state, action) {
       state.messages = action.payload;
@@ -73,12 +79,14 @@ const chatSlice = createSlice({
     pushMineMessage(state, action) {
       state.messages.push(action.payload);
     },
-
     addConversation(state, action) {
       state.conversationId = action.payload;
     },
     addChatFriend(state, action) {
       state.chatFriend = action.payload;
+    },
+    clearChatFriend(state) {
+      state.chatFriend = null;
     },
     updateOnlineConversation(state, action) {
       if (state.conversation) {
@@ -87,6 +95,10 @@ const chatSlice = createSlice({
             conversation.friend.isOnline = true;
           }
         });
+
+        if (state.selectedConversation?.friend?._id == action?.payload) {
+          state.selectedConversation.friend.isOnline = true;
+        }
       }
     },
     updateOfflineConversation(state, action) {
@@ -96,6 +108,10 @@ const chatSlice = createSlice({
             conversation.friend.isOnline = false;
           }
         });
+
+        if (state.selectedConversation?.friend?._id == action?.payload) {
+          state.selectedConversation.friend.isOnline = false;
+        }
       }
     },
     updateLastMessageInConversation(state, action) {
@@ -114,13 +130,17 @@ const chatSlice = createSlice({
             conversation.message.isRead = true;
           }
         });
+        state.messages.forEach((message) => {
+          if (message.isRead === false) {
+            message.isRead = true;
+          }
+        });
       }
     },
 
     clearMessage(state) {
       state.messages = [];
     },
-
     clearSelecetedConversation(state) {
       state.selectedConversation = null;
     },
@@ -129,12 +149,14 @@ const chatSlice = createSlice({
 
 export const {
   selectconversation,
+  changeconversation,
   addconversations,
   addMessages,
   addConversation,
   pushMessages,
   clearMessage,
   addChatFriend,
+  clearChatFriend,
   pushMineMessage,
   pushConversation,
   updateOnlineConversation,

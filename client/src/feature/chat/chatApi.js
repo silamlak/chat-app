@@ -51,6 +51,7 @@ export const getNewUsers = async () => {
 
 export const updateReadMessage = async (ids) => {
   try {
+    console.log(ids)
     const { conversationId, messageId } = ids;
     const res = await axiosInstance.put(
       `${endpoints.read_message}/${conversationId}/${messageId}`,

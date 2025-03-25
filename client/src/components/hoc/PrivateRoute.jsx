@@ -5,7 +5,7 @@ const PrivateRoute = ({ children }) => {
   const isAuth = useSelector((state) => state.auth.userId);
   const navigate = useNavigate();
 
-  console.log(isAuth)
+  // console.log(isAuth)
 
   useEffect(() => {
     if (!isAuth) {

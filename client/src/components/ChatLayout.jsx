@@ -2,7 +2,12 @@ import { Outlet, useLocation } from "react-router-dom";
 import ChatUserss from "./ChatUserss";
 import { useEffect } from "react";
 import socket from "../utils/socketConection";
-import { pushConversation, pushMessages, updateMessageRead } from "../feature/chat/chatSlice";
+import {
+  pushConversation,
+  pushMessages,
+  updateMessageRead,
+  updateOfflineConversation,
+} from "../feature/chat/chatSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Avatar from "./Avatar";
 import SignOut from "./SignOut";
@@ -10,48 +15,69 @@ import SignOut from "./SignOut";
 const ChatLayout = () => {
   const dispatch = useDispatch();
   const location = useLocation();
+  const userId = useSelector((state) => state.auth.userId);
   const conversation = useSelector((state) => state.chat.selectedConversation);
+  const conversations = useSelector((state) => state.chat.conversation);
 
   const locationPath = location.pathname;
 
-  //recieve messsages
+  //receive messages
   useEffect(() => {
     socket.on("recieveMessage", (data) => {
       dispatch(pushMessages(data));
       console.log(data);
+      console.log(conversations);
     });
     return () => {
       socket.off("recieveMessage");
     };
+  }, [dispatch, conversations]);
+
+  //receive new conversation
+  useEffect(() => {
+    socket.on("recieveNewConversation", (data) => {
+      console.log(data);
+      dispatch(pushConversation(data));
+    });
+    return () => {
+      socket.off("recieveNewConversation");
+    };
   }, [dispatch]);
 
-  //recieve new conversation
-    useEffect(() => {
-      socket.on("recieveNewConversation", (data) => {
-        console.log(data);
-        dispatch(pushConversation(data));
-      });
-      return () => {
-        socket.off("recieveNewConversation");
-      };
-    }, [dispatch]);
+  //receive update message read
+  useEffect(() => {
+    socket.on("recieveupdateMessageRead", (data) => {
+      dispatch(updateMessageRead(data?.conversationId));
+    });
+    return () => {
+      socket.off("recieveupdateMessageRead");
+    };
+  }, [dispatch]);
 
-    //recieve update message read
-      useEffect(() => {
-        socket.on("recieveupdateMessageRead", (data) => {
-          dispatch(updateMessageRead(data?.conversationId));
-        });
-        return () => {
-          socket.off("recieveupdateMessageRead");
-        }
-      }, [dispatch]);
+  // useEffect(() => {
+  //   const sendHeartbeat = () => {
+  //     socket.emit("heartbeat", userId);
+  //   };
+
+  //   socket.on("offlineUserRecieve", (id) => {
+  //         console.log({id, userId})
+  //         dispatch(updateOfflineConversation(id));
+  //       });
+
+  //   const heartbeatInterval = setInterval(sendHeartbeat, 3000);
+
+  //   return () => {
+  //     clearInterval(heartbeatInterval);
+  //     // socket.disconnect();
+  //   };
+  // }, [dispatch, userId]);
   return (
     <div className="font-[Lato]">
       <div className="md:flex z-50 h-screen hidden">
         <div className="w-1/4 h-screen custom-base sticky flex flex-col justify-between top-0 overflow-y-auto overflow-x-hidden">
           <ChatUserss />
           <div className="bg-blue-300 p-2 flex justify-between items-center">
-            <Avatar  />
+            <Avatar />
             <SignOut />
           </div>
         </div>

@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser";
 // import arcjetMiddleware from './middleware/arcjet.middleware.js';
 import chatRouter from "./route/chat.route.js";
 import { app, server } from "./socket.js";
+import userModel from "./model/user.model.js";
 
 app.use(
   cors({
