@@ -16,7 +16,7 @@ import Avatar from "./Avatar";
 import socket from "../utils/socketConection";
 import NewFriens from "./NewFriens";
 import UserchatSearch from "./UserchatSearch";
-import { CircularLoader } from "./Loader";
+import { CircularLoader, DotsLoaderTyping } from "./Loader";
 import { SiNike } from "react-icons/si";
 import { setLoading } from "../feature/loaderSlice";
 
@@ -107,6 +107,8 @@ const ChatUserss = () => {
     dispatch(setLoading(isLoading));
   }, [conversations, isLoading, dispatch]);
 
+  
+
   return (
     <div>
       <div className="reltive z-10 w-full overflow-x-hidden">
@@ -151,39 +153,49 @@ const ChatUserss = () => {
                         <h3 className="font-semibold text-slate-900 dark:text-slate-200">
                           {conversation?.friend?.name}
                         </h3>
-                        <div>
-                          <p className="text-[10px] absolute small-text top-[22px] -translate-y-1/2 right-2">
-                            {formatChatTimestamp(
-                              conversation?.message?.createdAt
-                            )}
-                          </p>
-                        </div>
-                        {conversation?.message?.sender == myId && (
-                          <div className="">
-                            {conversation?.message?.isRead ? (
-                              <div>
-                                <div>
-                                  <SiNike className="text-blue-500 absolute top-6 -translate-y-1/2 right-10" />
-                                  <SiNike className="text-blue-500 absolute top-5 -translate-y-1/2 right-[38px]" />
-                                </div>
-                              </div>
-                            ) : (
-                              <div>
-                                <SiNike className="text-blue-500 absolute top-6 -translate-y-1/2 right-10" />
-                              </div>
-                            )}
+                        {conversation?.isTyping && (
+                          <div className="flex items-center gap-1">
+                            <DotsLoaderTyping />
+                            <p className="text-[12px] text-blue-500">typing</p>
                           </div>
                         )}
-                        <p
-                          className={`w-full overflow-hidden text-ellipsis whitespace-nowrap text-slate-700 dark:text-slate-300 ${
-                            conversation?.message?.sender !== myId &&
-                            !conversation?.message?.isRead
-                              ? "text-sm font-semibold"
-                              : "text-sm font-normal"
-                          }  `}
-                        >
-                          {truncateText(conversation?.message?.text, 22)}
-                        </p>
+                        {!conversation?.isTyping && (
+                          <div>
+                            <div>
+                              <p className="text-[10px] absolute small-text top-[22px] -translate-y-1/2 right-2">
+                                {formatChatTimestamp(
+                                  conversation?.message?.createdAt
+                                )}
+                              </p>
+                            </div>
+                            {conversation?.message?.sender == myId && (
+                              <div className="">
+                                {conversation?.message?.isRead ? (
+                                  <div>
+                                    <div>
+                                      <SiNike className="text-blue-500 absolute top-6 -translate-y-1/2 right-10" />
+                                      <SiNike className="text-blue-500 absolute top-5 -translate-y-1/2 right-[38px]" />
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <SiNike className="text-blue-500 absolute top-6 -translate-y-1/2 right-10" />
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            <p
+                              className={`w-full overflow-hidden text-ellipsis whitespace-nowrap  text-slate-700 dark:text-slate-300 ${
+                                conversation.message.sender !== myId &&
+                                !conversation?.message?.isRead
+                                  ? "text-sm font-semibold"
+                                  : "text-sm font-normal"
+                              }  `}
+                            >
+                              {truncateText(conversation?.message?.text, 22)}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </li>
                   ))}

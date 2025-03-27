@@ -14,6 +14,16 @@ export const DotsLoader = () => (
   </div>
 );
 
+export const DotsLoaderTyping = () => (
+  <div className="flex justify-center space-x-1">
+    <div className="w-1 h-1 bg-green-500 rounded-full animate-[bounce_1.5s_infinite_0s]"></div>
+    <div className="w-1 h-1 bg-yellow-500 rounded-full animate-[bounce_1.5s_infinite_0.2s]"></div>
+    <div className="w-1 h-1 bg-red-500 rounded-full animate-[bounce_1.5s_infinite_0.4s]"></div>
+    {/* <div className="w-3 h-3 bg-blue-500 rounded-full animate-[bounce_1.5s_infinite_0.6s]"></div>
+    <div className="w-3 h-3 bg-blue-500 rounded-full animate-[bounce_1.5s_infinite_0.8s]"></div> */}
+  </div>
+);
+
 export const CircularLoader = () => (
   <svg className="w-6 h-6 animate-spin" viewBox="0 0 100 100">
     <circle

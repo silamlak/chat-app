@@ -8,10 +8,16 @@ import {
   pushMessages,
   updateMessageRead,
   updateOfflineConversation,
+  updateStopTyping,
+  updateTyping,
 } from "../feature/chat/chatSlice";
 import { useDispatch, useSelector } from "react-redux";
 import Avatar from "./Avatar";
 import SignOut from "./SignOut";
+import {
+  requestNotificationPermission,
+  showNotification,
+} from "../utils/notifications";
 
 const ChatLayout = () => {
   const dispatch = useDispatch();
@@ -19,12 +25,21 @@ const ChatLayout = () => {
   const conversations = useSelector((state) => state.chat.conversation);
 
   const locationPath = location.pathname;
+  //granting notification
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   //receive messages
   useEffect(() => {
     socket.on("recieveMessage", (data) => {
       dispatch(pushMessages(data));
-      dispatch(addUnreadMessage(data))
+      dispatch(addUnreadMessage(data));
+      conversations.map((conversation) => {
+        if (conversation.friend._id === data.sender) {
+          showNotification(conversation.friend.name, data.text);
+        }
+      });
     });
     return () => {
       socket.off("recieveMessage");
@@ -48,6 +63,20 @@ const ChatLayout = () => {
     });
     return () => {
       socket.off("recieveupdateMessageRead");
+    };
+  }, [dispatch]);
+
+  //typing effect
+  useEffect(() => {
+    socket.on("userTyping", (data) => {
+      dispatch(updateTyping(data?.myId));
+    });
+    socket.on("userStoppedTyping", (data) => {
+      dispatch(updateStopTyping(data?.myId));
+    });
+    return () => {
+      socket.off("userStoppedTyping");
+      socket.off("userTyping");
     };
   }, [dispatch]);
 

@@ -19,11 +19,34 @@ const chatSlice = createSlice({
     },
     changeconversation(state, action) {
       if (state?.conversation) {
-        console.log(state.conversation)
+        // console.log(state.conversation)
         const conversation = state.conversation?.find(
           (conversation) => conversation._id === action.payload
         );
         state.selectedConversation = conversation;
+      }
+    },
+
+    updateTyping(state, action) {
+      state.conversation = state.conversation.map((c) =>
+        c.friend._id === action.payload ? { ...c, isTyping: true } : c
+      );
+      if(state.selectedConversation && state.selectedConversation.friend._id === action.payload){
+        state.selectedConversation = {...state.selectedConversation, isTyping: true}
+      }
+    },
+    updateStopTyping(state, action) {
+      state.conversation = state.conversation.map((c) =>
+        c.friend._id === action.payload ? { ...c, isTyping: false } : c
+      );
+      if (
+        state.selectedConversation &&
+        state.selectedConversation.friend._id === action.payload
+      ) {
+        state.selectedConversation = {
+          ...state.selectedConversation,
+          isTyping: false,
+        };
       }
     },
     addNewFriend(state, action) {
@@ -183,6 +206,8 @@ export const {
   removeReadMessage,
   addUnreadMessage,
   setUnreadMessages,
+  updateStopTyping,
+  updateTyping,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

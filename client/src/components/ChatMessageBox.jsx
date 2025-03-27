@@ -1,46 +1,36 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   getMessages,
-  sendMessage,
   updateReadMessage,
 } from "../feature/chat/chatApi";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addconversations,
-  addInMineconversations,
   addMessages,
-  addUnreadMessage,
   changeconversation,
   clearMessage,
-  pushConversation,
-  pushMineMessage,
   removeReadMessage,
-  selectconversation,
   setUnreadMessages,
   setUnreadMessagesNull,
-  updateLastMessageInConversation,
   updateMessageRead,
 } from "../feature/chat/chatSlice";
 import { useEffect, useRef, useState } from "react";
 import socket from "../utils/socketConection";
 import ChatHeader from "./ChatHeader";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { DotsLoader } from "./Loader";
-import { IoSend } from "react-icons/io5";
 import { SiNike } from "react-icons/si";
+import { FaArrowDownLong } from "react-icons/fa6";
+import InputMessage from "./InputMessage";
 
 const ChatMessageBox = () => {
   const dispatch = useDispatch();
   const messages = useSelector((state) => state.chat.messages);
   const newFriend = useSelector((state) => state.chat.newFriend);
   const conversation = useSelector((state) => state.chat.selectedConversation);
-  const chatFriend = useSelector((state) => state.chat.chatFriend);
   const myId = useSelector((state) => state.auth.userId);
   const unread = useSelector((state) => state.chat.unreadMessages);
-  const [text, setText] = useState("");
-  const navigate = useNavigate();
+  const [isInBottom, setIsInBottom] = useState(false);
   const { id } = useParams();
-  const inputRef = useRef(null);
   const [ready, setReady] = useState(false);
   const messageBoxRef = useRef(null);
 
@@ -53,7 +43,6 @@ const ChatMessageBox = () => {
 
   useEffect(() => {
     dispatch(clearMessage());
-    inputRef.current?.focus();
   }, [dispatch]);
 
   const { data: messageData, isLoading } = useQuery({
@@ -73,55 +62,10 @@ const ChatMessageBox = () => {
       if (messageBoxRef?.current) {
         messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight;
         setReady(true);
+        setIsInBottom(true);
       }
     }
   }, [messageData, dispatch, myId]);
-
-  const mutation = useMutation({
-    mutationFn: (text) => sendMessage(conversation?._id, text),
-    onSuccess: (data) => {
-      const body = {
-        text,
-        sender: myId,
-        reciever: chatFriend?._id,
-        createdAt: new Date(Date.now()).toISOString(),
-        _id: data?.message?._id,
-      };
-      dispatch(pushMineMessage(data?.message));
-      dispatch(updateLastMessageInConversation(data?.message));
-
-      const { conversationWithUser } = data;
-      console.log(conversationWithUser);
-
-      if (!conversationWithUser) {
-        socket.emit("sendMessage", body);
-      } else {
-        navigate(`/${conversationWithUser._id}`);
-        dispatch(selectconversation(conversationWithUser));
-        const conversationData = {
-          message: body,
-          friendId: conversationWithUser?.friend?._id,
-          sender: myId,
-          friend: conversationWithUser?.friend,
-          _id: conversationWithUser?._id,
-        };
-        dispatch(addInMineconversations(conversationData));
-
-        console.log("Sending new conversation event", conversationData);
-        socket.emit("sendNewConversation", conversationData);
-      }
-      setText("");
-    },
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const body = {
-      text,
-      reciever: chatFriend?._id,
-    };
-    mutation.mutate(body);
-  };
 
   const formatDate = (date) => {
     const today = new Date();
@@ -160,6 +104,7 @@ const ChatMessageBox = () => {
       const messageBox = messageBoxRef.current;
       if (messageBox) {
         if (messageBox.scrollTop >= -3 && messageBox.scrollTop <= 1) {
+          setIsInBottom(true);
           const unreadMessages = messages.filter(
             (message) => message.sender !== myId && !message.isRead
           );
@@ -171,22 +116,35 @@ const ChatMessageBox = () => {
               });
             });
           }
+        } else {
+          setIsInBottom(false);
         }
       }
     };
 
     const messageBox = messageBoxRef.current;
     messageBox?.addEventListener("scroll", handleScroll);
+    // const callInterval = setTimeout(handleScroll, 1000);
 
     return () => {
       messageBox?.removeEventListener("scroll", handleScroll);
+      // clearTimeout(callInterval)
     };
   }, [messages, myId, mutationUpdateRead, conversation?._id]);
+
+  const handleToBottom = () => {
+    messageBoxRef.current?.scrollTo({
+      top: messageBoxRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  };
+  // console.log(messages)
 
   return (
     <div>
       <div className="h-screen flex flex-col overflow-y-auto bg-slate-100 dark:bg-slate-800">
         <ChatHeader
+          isTyping={conversation?.isTyping || false}
           userName={conversation?.friend?.name || newFriend?.name}
           isOnline={conversation?.friend?.isOnline || newFriend?.isOnline}
           lastSeen={conversation?.friend?.lastSeen || newFriend?.lastSeen}
@@ -207,13 +165,21 @@ const ChatMessageBox = () => {
               Select a user to chat
             </p>
           )}
-          {unread?.length > 0 && (
-            <div className="p-2 w-full fixed bottom-16 left-2">
-              <p className="p-2 w-fit rounded-full bg-blue-300 dark:bg-blue-800 text-slate-700 dark:text-slate-300 sticky bottom-2 left-2 text-right shadow-2xl">
+          <div className="p-2 w-full fixed bottom-16 left-2">
+            {!isInBottom && ready && unread?.length > 0 && (
+              <p className="flex justify-center items-center w-6 h-6 text-[12px] rounded-full bg-blue-300 dark:bg-blue-800 text-slate-700 dark:text-slate-300 sticky bottom-2 left-2 text-right shadow-2xl">
                 {unread?.length}
               </p>
-            </div>
-          )}
+            )}
+            {!isInBottom && ready && (
+              <button
+                onClick={handleToBottom}
+                className="mt-1 flex justify-center items-center w-6 h-6 text-[12px] rounded-full bg-blue-300 dark:bg-blue-800 text-slate-700 dark:text-slate-300 sticky bottom-2 left-2 text-right shadow-2xl"
+              >
+                <FaArrowDownLong />
+              </button>
+            )}
+          </div>
           <div className="">
             {ready &&
               messages?.map((message) => {
@@ -272,29 +238,7 @@ const ChatMessageBox = () => {
               })}
           </div>
         </div>
-        <div className="sticky bottom-0 border-2 border-slate-200 dark:border-slate-700 border-t-0 border-b-0 p-1 z-30 bg-slate-50 dark:bg-slate-900">
-          <form onSubmit={(e) => handleSubmit(e)} className="flex">
-            <input
-              ref={inputRef}
-              name="text"
-              onChange={(e) => setText(e.target.value)}
-              value={text}
-              type="text"
-              className="flex-1 rounded-l-lg p-2 focus:outline-none dark:text-slate-100 text-slate-800 dark:bg-slate-900 bg-slate-50"
-              placeholder="Type your message..."
-              autoComplete="off"
-            />
-            {text && (
-              <button
-                type="submit"
-                className="bg-blue-400 dark:bg-blue-800 flex justify-center gap-1 items-center text-white p-2 rounded-r-lg"
-              >
-                <IoSend />
-                <p>Send</p>
-              </button>
-            )}
-          </form>
-        </div>
+        <InputMessage />
       </div>
     </div>
   );

@@ -83,6 +83,30 @@ io.on("connection", (socket) => {
     socket.to(senderUser?.socketId).emit("recieveupdateMessageRead", data);
   });
 
+  socket.on("typing", async (data) => {
+    console.log(data);
+    if (data) {
+      const user = await userModel.findById(data?.friendId?._id);
+      socket.to(user?.socketId).emit("userTyping", data);
+    }
+  });
+
+  socket.on("stopTyping", async (data) => {
+    console.log(data);
+    if (data) {
+      const user = await userModel.findById(data?.friendId?._id);
+      socket.to(user?.socketId).emit("userStoppedTyping", data);
+    }
+  });
+
+  socket.on("sendIceCandidate", async (data) => {
+    console.log(data);
+    if (data) {
+      const user = await userModel.findById(data?.to);
+      socket.to(user?.socketId).emit("userStoppedTyping", data);
+    }
+  });
+
   socket.on("disconnect", async () => {
     console.log("User disconnected", socket.id);
 
