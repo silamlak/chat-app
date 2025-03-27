@@ -7,6 +7,7 @@ const initialState = {
   conversationId: null,
   chatFriend: null,
   newFriend: null,
+  unreadMessages: [],
 };
 
 const chatSlice = createSlice({
@@ -17,13 +18,30 @@ const chatSlice = createSlice({
       state.selectedConversation = action.payload;
     },
     changeconversation(state, action) {
-      const conversation = state.conversation.find(
-        (conversation) => conversation._id === action.payload
-      );
-      state.selectedConversation = conversation;
+      if (state?.conversation) {
+        console.log(state.conversation)
+        const conversation = state.conversation?.find(
+          (conversation) => conversation._id === action.payload
+        );
+        state.selectedConversation = conversation;
+      }
     },
     addNewFriend(state, action) {
       state.newFriend = action.payload;
+    },
+    setUnreadMessages(state, action) {
+      state.unreadMessages = action.payload;
+    },
+    addUnreadMessage(state, action) {
+      state.unreadMessages.push(action.payload);
+    },
+    removeReadMessage(state, action) {
+      state.unreadMessages = state.unreadMessages.filter(
+        (message) => message._id !== action.payload._id
+      );
+    },
+    setUnreadMessagesNull(state) {
+      state.unreadMessages = [];
     },
     addconversations(state, action) {
       state.conversation = action.payload;
@@ -47,9 +65,6 @@ const chatSlice = createSlice({
       state.messages = action.payload;
     },
     pushMessages(state, action) {
-      console.log("Selected Conversation:", state.selectedConversation);
-      console.log("Action Payload:", action.payload);
-
       // if (!state.selectedConversation) {
       //   console.warn("No selected conversation found!");
       //   return;
@@ -68,10 +83,8 @@ const chatSlice = createSlice({
       state.conversation.map((c) => {
         c.participants.map((participant) => {
           if (participant === action?.payload?.sender) {
-            console.log(participant);
             c.message = action.payload;
             state.messages.push(action.payload);
-            console.log("Message added:", action.payload);
           }
         });
       });
@@ -166,6 +179,10 @@ export const {
   clearSelecetedConversation,
   addInMineconversations,
   addNewFriend,
+  setUnreadMessagesNull,
+  removeReadMessage,
+  addUnreadMessage,
+  setUnreadMessages,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

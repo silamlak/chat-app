@@ -3,6 +3,7 @@ import ChatUserss from "./ChatUserss";
 import { useEffect } from "react";
 import socket from "../utils/socketConection";
 import {
+  addUnreadMessage,
   pushConversation,
   pushMessages,
   updateMessageRead,
@@ -15,8 +16,6 @@ import SignOut from "./SignOut";
 const ChatLayout = () => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const userId = useSelector((state) => state.auth.userId);
-  const conversation = useSelector((state) => state.chat.selectedConversation);
   const conversations = useSelector((state) => state.chat.conversation);
 
   const locationPath = location.pathname;
@@ -25,8 +24,7 @@ const ChatLayout = () => {
   useEffect(() => {
     socket.on("recieveMessage", (data) => {
       dispatch(pushMessages(data));
-      console.log(data);
-      console.log(conversations);
+      dispatch(addUnreadMessage(data))
     });
     return () => {
       socket.off("recieveMessage");
@@ -36,7 +34,6 @@ const ChatLayout = () => {
   //receive new conversation
   useEffect(() => {
     socket.on("recieveNewConversation", (data) => {
-      console.log(data);
       dispatch(pushConversation(data));
     });
     return () => {

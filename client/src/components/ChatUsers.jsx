@@ -56,7 +56,6 @@ const ChatUsers = () => {
   const mutation = useMutation({
     mutationFn: (ids) => updateReadMessage(ids),
     onSuccess: (data) => {
-      console.log(data);
       socket.emit("updateMessageRead", data);
       dispatch(updateMessageRead(selectedConversation?._id));
     },
@@ -69,7 +68,6 @@ const ChatUsers = () => {
     dispatch(addChatFriend(conversation?.friend));
     dispatch(clearMessage());
     navigate(`/${conversation?._id}`);
-    console.log(conversation);
     if (
       !conversation?.message?.isRead &&
       conversation?.message?.sender !== myId

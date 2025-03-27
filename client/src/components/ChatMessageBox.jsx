@@ -9,11 +9,15 @@ import {
   addconversations,
   addInMineconversations,
   addMessages,
+  addUnreadMessage,
   changeconversation,
   clearMessage,
   pushConversation,
   pushMineMessage,
+  removeReadMessage,
   selectconversation,
+  setUnreadMessages,
+  setUnreadMessagesNull,
   updateLastMessageInConversation,
   updateMessageRead,
 } from "../feature/chat/chatSlice";
@@ -24,7 +28,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { DotsLoader } from "./Loader";
 import { IoSend } from "react-icons/io5";
 import { SiNike } from "react-icons/si";
-import { useInView } from "react-intersection-observer";
 
 const ChatMessageBox = () => {
   const dispatch = useDispatch();
@@ -33,13 +36,12 @@ const ChatMessageBox = () => {
   const conversation = useSelector((state) => state.chat.selectedConversation);
   const chatFriend = useSelector((state) => state.chat.chatFriend);
   const myId = useSelector((state) => state.auth.userId);
+  const unread = useSelector((state) => state.chat.unreadMessages);
   const [text, setText] = useState("");
   const navigate = useNavigate();
   const { id } = useParams();
   const inputRef = useRef(null);
-  const chatContainerRef = useRef(null);
   const [ready, setReady] = useState(false);
-  const observers = useRef(new Map());
   const messageBoxRef = useRef(null);
 
   useEffect(() => {
@@ -61,14 +63,19 @@ const ChatMessageBox = () => {
   });
 
   useEffect(() => {
+    dispatch(setUnreadMessagesNull());
     if (messageData) {
+      const unreadMessages = messageData?.messages?.filter(
+        (message) => message.sender !== myId && !message.isRead
+      );
+      dispatch(setUnreadMessages(unreadMessages));
       dispatch(addMessages(messageData?.messages));
-      if (messageBoxRef.current) {
+      if (messageBoxRef?.current) {
         messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight;
         setReady(true);
       }
     }
-  }, [messageData, dispatch]);
+  }, [messageData, dispatch, myId]);
 
   const mutation = useMutation({
     mutationFn: (text) => sendMessage(conversation?._id, text),
@@ -80,7 +87,6 @@ const ChatMessageBox = () => {
         createdAt: new Date(Date.now()).toISOString(),
         _id: data?.message?._id,
       };
-
       dispatch(pushMineMessage(data?.message));
       dispatch(updateLastMessageInConversation(data?.message));
 
@@ -145,6 +151,7 @@ const ChatMessageBox = () => {
       console.log(data);
       socket.emit("updateMessageRead", data);
       dispatch(updateMessageRead(conversation?._id));
+      dispatch(removeReadMessage(data));
     },
   });
 
@@ -152,27 +159,12 @@ const ChatMessageBox = () => {
     const handleScroll = () => {
       const messageBox = messageBoxRef.current;
       if (messageBox) {
-        const isAtBottom =
-          messageBox.scrollHeight - messageBox.scrollTop ===
-          messageBox.clientHeight;
-
-        console.log("Scrolling...");
-        console.log("scrollHeight:", messageBox.scrollHeight);
-        console.log("scrollTop:", messageBox.scrollTop);
-        console.log("clientHeight:", messageBox.clientHeight);
-        console.log("isAtBottom:", isAtBottom);
-
         if (messageBox.scrollTop >= -3 && messageBox.scrollTop <= 1) {
-          console.log("messages");
           const unreadMessages = messages.filter(
             (message) => message.sender !== myId && !message.isRead
           );
-
-          console.log("Unread messages:", unreadMessages);
-
           if (unreadMessages.length > 0) {
             unreadMessages.forEach((message) => {
-              console.log("Marking message as read:", message._id);
               mutationUpdateRead.mutate({
                 conversationId: conversation?._id,
                 messageId: message?._id,
@@ -186,11 +178,11 @@ const ChatMessageBox = () => {
     const messageBox = messageBoxRef.current;
     messageBox?.addEventListener("scroll", handleScroll);
 
-    // Clean up on component unmount
     return () => {
       messageBox?.removeEventListener("scroll", handleScroll);
     };
   }, [messages, myId, mutationUpdateRead, conversation?._id]);
+
   return (
     <div>
       <div className="h-screen flex flex-col overflow-y-auto bg-slate-100 dark:bg-slate-800">
@@ -206,11 +198,21 @@ const ChatMessageBox = () => {
           </div>
         )}
 
-        <div className="p-4 flex-1 overflow-y-auto bg-slate-100 dark:bg-slate-800 flex flex-col-reverse"  ref={messageBoxRef}>
+        <div
+          className="p-4 flex-1 overflow-y-auto bg-slate-100 dark:bg-slate-800 flex flex-col-reverse relative"
+          ref={messageBoxRef}
+        >
           {!messages && (
             <p className="w-auto bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
               Select a user to chat
             </p>
+          )}
+          {unread?.length > 0 && (
+            <div className="p-2 w-full fixed bottom-16 left-2">
+              <p className="p-2 w-fit rounded-full bg-blue-300 dark:bg-blue-800 text-slate-700 dark:text-slate-300 sticky bottom-2 left-2 text-right shadow-2xl">
+                {unread?.length}
+              </p>
+            </div>
           )}
           <div className="">
             {ready &&
