@@ -14,6 +14,8 @@ const io = new Server(server, {
   },
 });
 
+const activeCalls = new Map();
+
 io.on("connection", (socket) => {
   // console.log("A user connected", socket.id);
   socket.on("join", async (userId) => {
@@ -105,6 +107,65 @@ io.on("connection", (socket) => {
       const user = await userModel.findById(data?.to);
       socket.to(user?.socketId).emit("userStoppedTyping", data);
     }
+  });
+
+  // Handle call request
+  socket.on("call-request", async ({ from, to, offer }) => {
+    activeCalls.clear();
+    const callId = `${from}-${to}`;
+    activeCalls.set(callId, Date.now());
+    const user = await userModel.findById(to);
+    io.to(user?.socketId).emit("call-request", { from, offer });
+  });
+
+  // Handle call acceptance
+  socket.on("call-accepted", async ({ to, from, answer }) => {
+    const callId = `${from}-${to}`;
+    if (!activeCalls.has(callId)) {
+      console.log(
+        `Duplicate or invalid call-accepted from ${from} to ${to}, ignoring`
+      );
+      return;
+    }
+    const user = await userModel.findById(to);
+    io.to(user?.socketId).emit("call-accepted", { from, answer });
+  });
+
+  socket.on("answer", async ({ to, answer }) => {
+    const user = await userModel.findById(to);
+    io.to(user?.socketId).emit("answer", { answer });
+  });
+
+  socket.on("ice-candidate", async ({ to, candidate }) => {
+    console.log(candidate)
+    const user = await userModel.findById(to);
+    io.to(user?.socketId).emit("ice-candidate", { candidate });
+  });
+
+  // Handle call rejection
+  socket.on("call-rejected", async ({ to }) => {
+    const user = await userModel.findById(to);
+    io.to(user?.socketId).emit("call-rejected");
+  });
+
+  // Handle call cancellation
+  socket.on("call-cancelled", async ({ to, from }) => {
+    const callId = `${from}-${to}`;
+    if (!activeCalls.has(callId)) {
+      activeCalls.delete(callId);
+    }
+    const user = await userModel.findById(to);
+    io.to(user?.socketId).emit("call-ended");
+  });
+
+  // Handle call end
+  socket.on("call-ended", async ({ to, from }) => {
+    const callId = `${from}-${to}`;
+    if (!activeCalls.has(callId)) {
+      activeCalls.delete(callId);
+    }
+    const user = await userModel.findById(to);
+    io.to(user?.socketId).emit("call-ended");
   });
 
   socket.on("disconnect", async () => {

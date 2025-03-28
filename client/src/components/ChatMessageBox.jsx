@@ -21,6 +21,7 @@ import { DotsLoader } from "./Loader";
 import { SiNike } from "react-icons/si";
 import { FaArrowDownLong } from "react-icons/fa6";
 import InputMessage from "./InputMessage";
+import ChatComponent from "./ChatComponent";
 
 const ChatMessageBox = () => {
   const dispatch = useDispatch();
@@ -149,6 +150,7 @@ const ChatMessageBox = () => {
           isOnline={conversation?.friend?.isOnline || newFriend?.isOnline}
           lastSeen={conversation?.friend?.lastSeen || newFriend?.lastSeen}
         />
+        <ChatComponent />
 
         {isLoading && (
           <div className="text-center pt-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">

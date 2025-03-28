@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { DotsLoaderTyping } from "./Loader";
 import Call from "./Call";
 import CallButton from "./CallButton";
+import ChatComponent from "./ChatComponent";
 
 const ChatHeader = ({ userName, lastSeen, isOnline, isTyping = false }) => {
 
@@ -64,7 +65,7 @@ const ChatHeader = ({ userName, lastSeen, isOnline, isTyping = false }) => {
           aria-label="Call"
           className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none"
         >
-          <CallButton />
+          {/* <ChatComponent /> */}
         </button>
 
         <button
